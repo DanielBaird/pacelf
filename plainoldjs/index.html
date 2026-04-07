@@ -2,10 +2,16 @@
 <html>
     <head>
         <style>
+            /* ----------------------------------------- */
+            /* ----------------------------------------- */
             body {
                 background: #00254a;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 font-size: calc(13px + 0.4vw);
+            }
+            p {
+                margin: 0;
+                padding: 0;
             }
             .main {
                 max-width: 60em;
@@ -17,14 +23,20 @@
                 width: 100%;
                 display: flex;
                 direction: row;
-                gap: 1em;
                 align-items: stretch;
                 align-content: stretch;
 
             }
-            .filters, .results {
-                /* border: 1px solid pink; */
+            /* ----------------------------------------- */
+            .message {
+                text-align: center;
+                font-size: 150%;
+                color: #039;
             }
+            .error {
+                color: #a00;
+            }
+            /* ----------------------------------------- */
             .filters {
                 width: 20em;
                 flex-shrink: 0;
@@ -37,10 +49,19 @@
                 padding: 0.5em;
                 background-color: white;
             }
-
+            /* ----------------------------------------- */
             .results {
                 flex-grow: 1;
+                background-color: #def;
+                padding: 0 0.5em;
             }
+            .result {
+                margin: 0.5em 0;
+                padding: 0.5em;
+                background-color: white;
+            }
+            /* ----------------------------------------- */
+            /* ----------------------------------------- */
         </style>
     </head>
     <body>
@@ -57,6 +78,7 @@
             let allItems = []
             let filteredItems = []
             // --------------------------------------------
+            reportStatus('loading...')
             let itemLoader = fetch('library-index.json')
             itemLoader.then( (itemResponse) => {
                 let itemParser = itemResponse.json()
@@ -66,9 +88,39 @@
                     buildFilters()
                     buildResultList()
                     console.log(items[0])
+                }).catch( err => {
+                    reportError('could not load list of items.')
                 })
+            }).catch( err => {
+                reportError('could not load list of items.')
             })
             // --------------------------------------------
+            // Utility functions
+            // --------------------------------------------
+            // compact function for making a DOM element
+            function makeNode(tag, className, ...content) {
+                let node = document.createElement(tag)
+                node.append(...content)
+                node.className = className
+                return node
+            }
+            // --------------------------------------------
+            function reportStatus(msg) {
+                let res = document.querySelector('section.results')
+                res.innerHTML = ''
+                res.appendChild( makeNode('div', 'message status', msg) )
+            }
+            // --------------------------------------------
+            function reportError(err) {
+                let res = document.querySelector('section.results')
+                res.innerHTML = ''
+                res.appendChild( makeNode('div', 'message error', err) )
+            }
+            // --------------------------------------------
+            // construction of page elements
+            // --------------------------------------------
+            // go through the fields we want to filter
+            // by, and make page elememnts for them
             function buildFilters() {
                 document.querySelector('section.filters').innerHTML = "filters go here"
 
@@ -76,6 +128,7 @@
                 buildFilter('Category')
             }
             // --------------------------------------------
+            // make page elements for a single filter
             function buildFilter(field) {
                 // get field's domain from all items list
                 let domain = []
@@ -88,8 +141,7 @@
                 domain.sort()
                 console.log(domain)
 
-                let filterElement = document.createElement('div')
-                filterElement.className = 'filter'
+                let filterElement = makeNode('div', 'filter')
                 filterElement.append(...[
                     'Field:',
                     field,
@@ -99,19 +151,26 @@
                 document.querySelector('section.filters').append(filterElement)
             }
             // --------------------------------------------
+            // make a checkbox item for one possible
+            // value for a given field's filter
             function buildCheckboxItem(value) {
-                let item = document.createElement('div')
-                let cb = document.createElement('input')
+                let cb = makeNode('input', '')
                 cb.setAttribute('type', 'checkbox')
-                item.append(cb)
-                item.append(value)
+
+                let label = makeNode('label', '', cb, value)
+
+                let item = makeNode('div', '', label)
                 return item
             }
             // --------------------------------------------
+            // filter the list of all items by whatever is
+            // selected in the filter list
             function applyFilters() {
                 filteredItems = allItems
             }
             // --------------------------------------------
+            // go through the filtered list of results and
+            // make page elements for them all
             function buildResultList() {
                 let resultElement = document.querySelector('section.results')
                 resultElement.innerHTML = ""
@@ -119,9 +178,16 @@
                 applyFilters()
 
                 filteredItems.forEach( item => {
-                    resultElement.append("<p>" + item.Title + "</p>")
+                    resultElement.append(buildResult(item))
                 })
+            }
             // --------------------------------------------
+            // make page elements for one single result 
+            // item
+            function buildResult(item) {
+                let title = makeNode('p', 'title', item.Title)
+                let result = makeNode('div', 'result', title)
+                return result
             }
             // --------------------------------------------
             // --------------------------------------------
