@@ -14,7 +14,7 @@
                 padding: 0;
             }
             .main {
-                max-width: 60em;
+                max-width: 70em;
                 margin: 0 auto;
                 padding: 3em 1em;
                 background-color: white;
@@ -23,9 +23,9 @@
                 width: 100%;
                 display: flex;
                 direction: row;
+                gap: 1em;
                 align-items: stretch;
                 align-content: stretch;
-
             }
             /* ----------------------------------------- */
             .message {
@@ -45,9 +45,40 @@
                 padding: 0.5em;
             }
             .filter {
-                margin: 0.1em 0;
+                margin: 0.5em 0;
                 padding: 0.5em;
+                border-radius: 0.33em;
                 background-color: white;
+            }
+            .filterHead {
+                display: flex;
+                direction: row;
+                align-items: stretch;
+                align-content: stretch;
+            }
+            .filterToggle {
+                flex: 0 0;
+            }
+            .filterLabel {
+                flex: 1 0;
+            }
+            .filter .filterToggle:before {
+                content: '^';
+            }
+            .filter.closed .filterToggle:before {
+                content: 'v';
+            }
+
+            .filterList {
+                padding: 0.5em 0 0.5em 1em;
+            }
+            .filter.closed .filterList {
+                padding: 0;
+                height: 0;
+                overflow: hidden;
+            }
+            .filterItem {
+                padding: 0.2em 0;
             }
             /* ----------------------------------------- */
             .results {
@@ -58,6 +89,7 @@
             .result {
                 margin: 0.5em 0;
                 padding: 0.5em;
+                border-radius: 0.5em;
                 background-color: white;
             }
             /* ----------------------------------------- */
@@ -69,7 +101,10 @@
             <h1>PacELF Rebuild</h1>
             <section class="library">
                 <section class="filters">filters<br />filters<br />filters<br />filters<br /></section>
-                <section class="results">results</section>
+                <section class="results">
+                    <div class="message status">Initialising...</div>
+                    <p>If this page does not load please refresh.</p>
+                </section>
             </section>
         </div>
         <script>
@@ -79,10 +114,13 @@
             let filteredItems = []
             // --------------------------------------------
             reportStatus('loading...')
+
             let itemLoader = fetch('library-index.json')
             itemLoader.then( (itemResponse) => {
+                reportStatus('parsing data...')
                 let itemParser = itemResponse.json()
                 itemParser.then( (items) => {
+                    reportStatus('preparing page...')
                     // here we have the items loaded from the JSON file
                     allItems = items
                     buildFilters()
@@ -122,7 +160,7 @@
             // go through the fields we want to filter
             // by, and make page elememnts for them
             function buildFilters() {
-                document.querySelector('section.filters').innerHTML = "filters go here"
+                document.querySelector('section.filters').innerHTML = 'Filter by'
 
                 buildFilter('Year')
                 buildFilter('Category')
@@ -139,14 +177,19 @@
                     }
                 })
                 domain.sort()
-                console.log(domain)
 
-                let filterElement = makeNode('div', 'filter')
-                filterElement.append(...[
-                    'Field:',
-                    field,
-                    ...(domain.map( domItem => buildCheckboxItem(domItem)))
-                ])
+                let filterLabel = makeNode('b', 'filterLabel', field)
+                let filterToggle = makeNode('button', 'filterToggle')
+                filterToggle.addEventListener('click', (event) => {
+                    // when the toggle is clicked, add or remove 
+                    // the "closed" class on the parent filter
+                    console.log(event)
+                    event.target.parentElement.parentElement.classList.toggle('closed')
+                }) 
+                let filterHead = makeNode('div', 'filterHead', filterLabel, filterToggle)
+                let filterList = makeNode('div', 'filterList', ...(domain.map( domItem => buildCheckboxItem(domItem))))
+
+                let filterElement = makeNode('div', 'filter closed', filterHead, filterList)
 
                 document.querySelector('section.filters').append(filterElement)
             }
@@ -154,12 +197,11 @@
             // make a checkbox item for one possible
             // value for a given field's filter
             function buildCheckboxItem(value) {
-                let cb = makeNode('input', '')
+                let cb = makeNode('input')
                 cb.setAttribute('type', 'checkbox')
 
                 let label = makeNode('label', '', cb, value)
-
-                let item = makeNode('div', '', label)
+                let item = makeNode('div', 'filterItem', label)
                 return item
             }
             // --------------------------------------------
@@ -176,6 +218,10 @@
                 resultElement.innerHTML = ""
 
                 applyFilters()
+
+                 if (filteredItems.length < 1) {
+                    reportStatus('no items to display')
+                 }
 
                 filteredItems.forEach( item => {
                     resultElement.append(buildResult(item))
