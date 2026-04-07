@@ -4,11 +4,26 @@
         <style>
             /* ----------------------------------------- */
             /* ----------------------------------------- */
+            * { box-sizing: inherit; }
+            :root {
+                interpolate-size: allow-keywords;
+                box-sizing: border-box;
+
+                --primary-color: #c10015;
+                --secondary-color: #273256;
+                --accent-color: #E9F0F2;
+                --dark-color: #00254a;
+            }
             body {
-                background: #00254a;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: var(--dark-color);
+                color: var(--accent-color);
+
+                /* this font family will use the "system" font on any device */
+                font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                /* this font size calc make the font larger on wider screens */
                 font-size: calc(13px + 0.4vw);
             }
+            h1 { font-weight: 100; }
             p {
                 margin: 0;
                 padding: 0;
@@ -17,7 +32,7 @@
                 max-width: 70em;
                 margin: 0 auto;
                 padding: 3em 1em;
-                background-color: white;
+                background-color: var(--primary-color);
             }
             .library {
                 width: 100%;
@@ -33,57 +48,76 @@
                 font-size: 150%;
                 color: #039;
             }
-            .error {
-                color: #a00;
-            }
+            .error { color: #a00; }
             /* ----------------------------------------- */
             .filters {
                 width: 20em;
                 flex-shrink: 0;
                 flex-grow: 0;
-                background-color: #eee;
+                background-color: var(--secondary-color);
+                color: var(--accent-color);
                 padding: 0.5em;
             }
+            .filtersHeader {
+                padding: 1em 0;
+            }
             .filter {
-                margin: 0.5em 0;
                 padding: 0.5em;
-                border-radius: 0.33em;
-                background-color: white;
+                border: 1px solid var(--dark-color);
+                border-width: 1px 0;
+                transition: 0.33s;
+            }
+            .filter:hover {
+                background-color: var(--dark-color);
             }
             .filterHead {
                 display: flex;
                 direction: row;
-                align-items: stretch;
+                align-items: center;
                 align-content: stretch;
             }
-            .filterToggle {
-                flex: 0 0;
-            }
-            .filterLabel {
-                flex: 1 0;
-            }
-            .filter .filterToggle:before {
-                content: '^';
-            }
-            .filter.closed .filterToggle:before {
-                content: 'v';
-            }
+            .filterLabel  { flex: 1 0; }
 
-            .filterList {
-                padding: 0.5em 0 0.5em 1em;
+            .filter .filterToggle {
+                color: inherit;
+                opacity: 0.5;
+                font-size: 110%;
+                transform: rotate(180deg);
+                transition: 0.33s;
+                background-color: rgba(0,0,0, 0);
+                height: 1.66em;
+                width: 1.66em;
+                border-radius: 50%;
+                border: none;
+            } 
+            .filterToggle:hover {
+                background-color: var(--secondary-color);
             }
-            .filter.closed .filterList {
-                padding: 0;
-                height: 0;
+            .filter .filterToggle:before { content: '▼'; }
+            .filter.closed .filterToggle { transform: rotate(0); }
+
+            .filterList { 
+                padding: 0.5em 0 0.5em 1em;
+                transition: 0.33s;
                 overflow: hidden;
             }
+            .filter.closed .filterList {
+                padding: 0 0 0 1em;
+                height: 0;
+            }
+
             .filterItem {
-                padding: 0.2em 0;
+                padding: 0.5em 0; 
+                transition: 0.33s;
+            }
+            .filterItem:hover {
+                background-color: var(--secondary-color);
             }
             /* ----------------------------------------- */
             .results {
                 flex-grow: 1;
-                background-color: #def;
+                background-color: var(--accent-color);
+                color: var(--secondary-color);
                 padding: 0 0.5em;
             }
             .result {
@@ -98,7 +132,7 @@
     </head>
     <body>
         <div class="main">
-            <h1>PacELF Rebuild</h1>
+            <h1>PacELF Digital Library</h1>
             <section class="library">
                 <section class="filters">filters<br />filters<br />filters<br />filters<br /></section>
                 <section class="results">
@@ -160,7 +194,10 @@
             // go through the fields we want to filter
             // by, and make page elememnts for them
             function buildFilters() {
-                document.querySelector('section.filters').innerHTML = 'Filter by'
+
+                const filtersElement = document.querySelector('section.filters')
+                filtersElement.innerHTML = ''
+                filtersElement.append( makeNode('div', 'filtersHeader', 'Filter by') )
 
                 buildFilter('Year')
                 buildFilter('Category')
