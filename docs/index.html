@@ -35,7 +35,6 @@
                 background-color: var(--primary-color);
             }
             .library {
-                width: 100%;
                 display: flex;
                 direction: row;
                 gap: 1em;
@@ -115,7 +114,7 @@
             }
             /* ----------------------------------------- */
             .results {
-                flex-grow: 1;
+                flex: 1 1;
                 background-color: var(--accent-color);
                 color: var(--secondary-color);
                 padding: 0 0.5em;
@@ -125,6 +124,31 @@
                 padding: 0.5em;
                 border-radius: 0.5em;
                 background-color: white;
+            }
+            .result .title {
+                font-weight: bold;
+                padding: 0.25em 0;
+            }
+            .result .details { overflow: hidden; }
+            .result.closed .details {
+                height: 0;
+            }
+            .result .field {
+                display: flex;
+                width: 100%;
+                flex-direction: row;
+                margin: 0;
+                padding: 0.25em 0;
+            }
+            .result .fieldLabel {
+                margin: 0;
+                font-style: italic;
+                min-width: 8em;
+                padding-right: 1em;
+            }
+            .result .fieldValue {
+                margin: 0;
+                overflow-wrap: anywhere;
             }
             /* ----------------------------------------- */
             /* ----------------------------------------- */
@@ -269,7 +293,26 @@
             // item
             function buildResult(item) {
                 let title = makeNode('p', 'title', item.Title)
-                let result = makeNode('div', 'result', title)
+                title.addEventListener('click', (event) => {
+                    // when the title is clicked, add or remove 
+                    // the "closed" class on the parent result
+                    event.target.parentElement.classList.toggle('closed')
+                }) 
+                
+                let details = makeNode('div', 'details')
+                let result = makeNode('div', 'result closed', title, details)
+
+                for (var fieldKey in item) {
+                    let fieldValue = item[fieldKey]
+                    if (fieldValue == "") continue;
+                    if (fieldValue == "NO VALUE") continue;
+
+                    let fieldLabel = makeNode('dt', 'fieldLabel', fieldKey)
+                    let fieldContent = makeNode('dd', 'fieldValue', fieldValue)
+                    let field = makeNode('dl', 'field', fieldLabel, fieldContent)
+                    details.append(field)
+                }
+
                 return result
             }
             // --------------------------------------------
