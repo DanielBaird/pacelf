@@ -13,21 +13,24 @@
                 --secondary-color: #273256;
                 --accent-color: #E9F0F2;
                 --dark-color: #00254a;
-            }
-            body {
-                background: var(--dark-color);
-                color: var(--accent-color);
 
                 /* this font family will use the "system" font on any device */
                 font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
                 /* this font size calc make the font larger on wider screens */
                 font-size: calc(13px + 0.4vw);
             }
+            body {
+                background: var(--dark-color);
+                color: var(--accent-color);
+            }
             h1 { font-weight: 100; }
-            p {
+            p, dl, dt {
                 margin: 0;
                 padding: 0;
             }
+            .clickable { cursor:      pointer }
+            .bold      { font-weight: bold }
+            .italic    { font-style:  italic }
             .main {
                 max-width: 70em;
                 margin: 0 auto;
@@ -43,6 +46,7 @@
             }
             /* ----------------------------------------- */
             .message {
+                padding-top: 2em;
                 text-align: center;
                 font-size: 150%;
                 color: #039;
@@ -115,6 +119,7 @@
             /* ----------------------------------------- */
             .results {
                 flex: 1 1;
+                min-height: 10em;
                 background-color: var(--accent-color);
                 color: var(--secondary-color);
                 padding: 0 0.5em;
@@ -137,11 +142,11 @@
                 display: flex;
                 width: 100%;
                 flex-direction: row;
-                margin: 0;
+                align-items: first baseline;
                 padding: 0.25em 0;
             }
             .result .fieldLabel {
-                margin: 0;
+                font-size: 70%;
                 font-style: italic;
                 min-width: 8em;
                 padding-right: 1em;
@@ -158,7 +163,7 @@
         <div class="main">
             <h1>PacELF Digital Library</h1>
             <section class="library">
-                <section class="filters">filters<br />filters<br />filters<br />filters<br /></section>
+                <section class="filters"></section>
                 <section class="results">
                     <div class="message status">Initialising...</div>
                     <p>If this page does not load please refresh.</p>
@@ -167,6 +172,33 @@
         </div>
         <script>
             // --------------------------------------------
+            // --------------------------------------------
+            const config = {
+                hideValues: ['', 'NO VALUE'],
+                fields: {
+                    Title: {
+                        show: 'unlabeled header',
+                        format: 'bold'
+                    },
+                    Authors: { 
+                        show: 'unlabeled header',
+                        format: 'italic'
+                    },
+                    Year: {
+                        type: 'number',
+                        show: 'filter'
+                    },
+                    Category: {
+                        type: 'category',
+                        show: 'filter'
+                    },
+                    Work_Location: {
+                        label: 'Location of Work',
+                        type: 'category',
+                        show: 'filter'
+                    }
+                }
+            }   
             // --------------------------------------------
             let allItems = []
             let filteredItems = []
@@ -183,6 +215,7 @@
                     allItems = items
                     buildFilters()
                     buildResultList()
+                    // TODO: remove this log
                     console.log(items[0])
                 }).catch( err => {
                     reportError('could not load list of items.')
@@ -199,6 +232,24 @@
                 node.append(...content)
                 node.className = className
                 return node
+            }
+            // --------------------------------------------
+            function makeField(fieldId, fieldValue, labelled, format) {
+
+                console.log(fieldValue)
+                if (config.hideValues.includes(fieldValue)) return ''
+                console.log('still going with ', fieldValue)
+
+                let field
+                let className = ['field', format].join(' ')
+                if (labelled) {
+                    let fieldLabel = makeNode('dt', 'fieldLabel', fieldId)
+                    let fieldContent = makeNode('dd', 'fieldValue', fieldValue)
+                    field = makeNode('dl', className, fieldLabel, fieldContent)
+                } else {
+                    field = makeNode('p', className, fieldValue)
+                }
+                return field
             }
             // --------------------------------------------
             function reportStatus(msg) {
@@ -240,12 +291,11 @@
                 domain.sort()
 
                 let filterLabel = makeNode('b', 'filterLabel', field)
-                let filterToggle = makeNode('button', 'filterToggle')
+                let filterToggle = makeNode('button', 'filterToggle clickable')
                 filterToggle.addEventListener('click', (event) => {
                     // when the toggle is clicked, add or remove 
                     // the "closed" class on the parent filter
-                    console.log(event)
-                    event.target.parentElement.parentElement.classList.toggle('closed')
+                    event.target.closest('.filter').classList.toggle('closed')
                 }) 
                 let filterHead = makeNode('div', 'filterHead', filterLabel, filterToggle)
                 let filterList = makeNode('div', 'filterList', ...(domain.map( domItem => buildCheckboxItem(domItem))))
@@ -289,27 +339,29 @@
                 })
             }
             // --------------------------------------------
-            // make page elements for one single result 
-            // item
+            // make page elements for a single result item 
             function buildResult(item) {
-                let title = makeNode('p', 'title', item.Title)
-                title.addEventListener('click', (event) => {
+                let header = makeNode('div', 'header clickable')
+                for (var fieldId in config.fields) {
+                    cfg = config.fields[fieldId]
+                    if (cfg.show.includes('header')) {
+                        let field = makeField(fieldId, item[fieldId], !cfg.show.includes('unlabel'), cfg.format)
+                        header.append( makeNode('p', 'unlabeled', field) )
+                    }
+                }
+
+                header.addEventListener('click', (event) => {
                     // when the title is clicked, add or remove 
                     // the "closed" class on the parent result
-                    event.target.parentElement.classList.toggle('closed')
-                }) 
+                    event.target.closest('.result').classList.toggle('closed')
+                })
                 
                 let details = makeNode('div', 'details')
-                let result = makeNode('div', 'result closed', title, details)
+                let result = makeNode('div', 'result closed', header, details)
 
                 for (var fieldKey in item) {
                     let fieldValue = item[fieldKey]
-                    if (fieldValue == "") continue;
-                    if (fieldValue == "NO VALUE") continue;
-
-                    let fieldLabel = makeNode('dt', 'fieldLabel', fieldKey)
-                    let fieldContent = makeNode('dd', 'fieldValue', fieldValue)
-                    let field = makeNode('dl', 'field', fieldLabel, fieldContent)
+                    let field = makeField(fieldKey, item[fieldKey], true)
                     details.append(field)
                 }
 
