@@ -28,15 +28,28 @@
                 margin: 0;
                 padding: 0;
             }
+            /* some utility classes to make formatting easier */
             .clickable { cursor:      pointer }
             .bold      { font-weight: bold }
             .italic    { font-style:  italic }
+            /* alerts mostly displayed in the results section */
+            .message {
+                padding-top: 2em;
+                text-align: center;
+                font-size: 150%;
+                color: #039;
+            }
+            /* flavour of message */
+            .error { color: #a00; }
+            /* ----------------------------------------- */
+            /* the main container for the page */
             .main {
                 max-width: 70em;
                 margin: 0 auto;
                 padding: 3em 1em;
                 background-color: var(--primary-color);
             }
+            /* the main container for the filter and result list */
             .library {
                 display: flex;
                 direction: row;
@@ -45,14 +58,7 @@
                 align-content: stretch;
             }
             /* ----------------------------------------- */
-            .message {
-                padding-top: 2em;
-                text-align: center;
-                font-size: 150%;
-                color: #039;
-            }
-            .error { color: #a00; }
-            /* ----------------------------------------- */
+            /* the sidebar of filters */
             .filters {
                 width: 20em;
                 flex-shrink: 0;
@@ -64,6 +70,7 @@
             .filtersHeader {
                 padding: 1em 0;
             }
+            /* filter for a single tag */
             .filter {
                 padding: 0.5em;
                 border: 1px solid var(--dark-color);
@@ -81,6 +88,7 @@
             }
             .filterLabel  { flex: 1 0; }
 
+            /* the button to open/close the list of filter items */
             .filter .filterToggle {
                 color: inherit;
                 opacity: 0.5;
@@ -108,7 +116,7 @@
                 padding: 0 0 0 1em;
                 height: 0;
             }
-
+            /* a single possible value that you might filter on */
             .filterItem {
                 padding: 0.5em 0; 
                 transition: 0.33s;
@@ -130,7 +138,7 @@
                 border-radius: 0.5em;
                 background-color: white;
             }
-            .result .title {
+            .result .head {
                 font-weight: bold;
                 padding: 0.25em 0;
             }
@@ -175,31 +183,24 @@
             // --------------------------------------------
             const config = {
                 hideValues: ['', 'NO VALUE'],
+                noFilter: ['Title', 'Description', 'Volume/Issue', 'PDF_file_name', 'URL'],
                 fields: {
                     Title: {
-                        show: 'unlabeled header',
+                        display: 'unlabeled header',
                         format: 'bold'
                     },
                     Authors: { 
-                        show: 'unlabeled header',
+                        display: 'unlabeled header',
                         format: 'italic'
                     },
-                    Year: {
-                        type: 'number',
-                        show: 'filter'
-                    },
-                    Category: {
-                        type: 'category',
-                        show: 'filter'
-                    },
-                    Work_Location: {
-                        label: 'Location of Work',
-                        type: 'category',
-                        show: 'filter'
-                    }
+                    Year:          { filter: 'range' }, 
+                    Category:      { filter: 'category' },
+                    Language:      { filter: 'category' },
+                    Work_Location: { label:  'Location' }
                 }
             }   
             // --------------------------------------------
+            let allFields = []
             let allItems = []
             let filteredItems = []
             // --------------------------------------------
@@ -234,16 +235,29 @@
                 return node
             }
             // --------------------------------------------
+            function getFieldLabel(fieldId) {
+                return config.fields[fieldId]?.label || fieldId.replaceAll('_', ' ')
+            }
+            // --------------------------------------------
+            // make a display field with a label and value 
+            // (unless it should not show the label, or 
+            // should be hidden entirely)
             function makeField(fieldId, fieldValue, labelled, format) {
 
-                console.log(fieldValue)
+                fieldInfo = config.fields[fieldId]
+
+                // if the display format says not to show it, return nothing
+                if (fieldInfo?.display === 'hide') return ''
+
+                // if the value is a hideValue, then return nothing
                 if (config.hideValues.includes(fieldValue)) return ''
-                console.log('still going with ', fieldValue)
 
                 let field
                 let className = ['field', format].join(' ')
                 if (labelled) {
-                    let fieldLabel = makeNode('dt', 'fieldLabel', fieldId)
+                    // label is the override from the config, or the fieldId with underscores replaced by spaces
+                    label = getFieldLabel(fieldId)
+                    let fieldLabel = makeNode('dt', 'fieldLabel', label)
                     let fieldContent = makeNode('dd', 'fieldValue', fieldValue)
                     field = makeNode('dl', className, fieldLabel, fieldContent)
                 } else {
@@ -270,27 +284,59 @@
             // by, and make page elememnts for them
             function buildFilters() {
 
+                // get every field in any item
+                allFields = []
+                allItems.forEach( item => {
+                    for (var field in item) {
+                        if (!allFields.includes(field)) {
+                            allFields.push(field)
+                        }
+                    }
+                })
+
                 const filtersElement = document.querySelector('section.filters')
                 filtersElement.innerHTML = ''
                 filtersElement.append( makeNode('div', 'filtersHeader', 'Filter by') )
 
-                buildFilter('Year')
-                buildFilter('Category')
+                allFields.forEach( fieldId => {
+                    buildFilter(fieldId)
+                })
             }
             // --------------------------------------------
             // make page elements for a single filter
-            function buildFilter(field) {
+            function buildFilter(fieldId) {
+
+                // if the config says not to filter by this, skip it
+                if (config.noFilter.includes(fieldId)) return
+
+                // if the config says not to filter on this field, skip it
+                if (config.fields[fieldId]?.filter === 'none') return
+
                 // get field's domain from all items list
                 let domain = []
-                allItems.forEach( item => {
-                    let fieldValue = item[field]
-                    if (!domain.includes(fieldValue)) {
-                        domain.push(fieldValue)
-                    }
-                })
-                domain.sort()
 
-                let filterLabel = makeNode('b', 'filterLabel', field)
+                allItems.forEach( item => {
+                    let fieldValue = item[fieldId]
+                    // sometimes fields are arrays of values, make anything
+                    // that's NOT an array into one
+                    if (!(fieldValue instanceof Array)) {
+                        fieldValue = [fieldValue]
+                    }
+                    fieldValue.forEach( val => {
+                        if (!domain.includes(val)) {
+                            domain.push(val)
+                        }
+                    })
+                })
+                // sorrt alphabetically but put "empty" values at the start of the list
+                domain.sort( (a, b) => {
+                    if (config.hideValues.includes(a)) return -1
+                    if (config.hideValues.includes(b)) return 1
+                    // otherwise sort alphabetically
+                    return a.localeCompare(b)
+                })
+
+                let filterLabel = makeNode('b', 'filterLabel', getFieldLabel(fieldId))
                 let filterToggle = makeNode('button', 'filterToggle clickable')
                 filterToggle.addEventListener('click', (event) => {
                     // when the toggle is clicked, add or remove 
@@ -330,9 +376,9 @@
 
                 applyFilters()
 
-                 if (filteredItems.length < 1) {
+                if (filteredItems.length < 1) {
                     reportStatus('no items to display')
-                 }
+                }
 
                 filteredItems.forEach( item => {
                     resultElement.append(buildResult(item))
@@ -341,11 +387,12 @@
             // --------------------------------------------
             // make page elements for a single result item 
             function buildResult(item) {
+
                 let header = makeNode('div', 'header clickable')
                 for (var fieldId in config.fields) {
                     cfg = config.fields[fieldId]
-                    if (cfg.show.includes('header')) {
-                        let field = makeField(fieldId, item[fieldId], !cfg.show.includes('unlabel'), cfg.format)
+                    if (cfg?.display?.includes('header')) {
+                        let field = makeField(fieldId, item[fieldId], !cfg.display.includes('unlabel'), cfg.format)
                         header.append( makeNode('p', 'unlabeled', field) )
                     }
                 }
@@ -355,7 +402,7 @@
                     // the "closed" class on the parent result
                     event.target.closest('.result').classList.toggle('closed')
                 })
-                
+
                 let details = makeNode('div', 'details')
                 let result = makeNode('div', 'result closed', header, details)
 
