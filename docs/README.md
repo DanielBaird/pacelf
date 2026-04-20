@@ -1,4 +1,4 @@
-# POJS rewrite
+# POJS rewrite (plain old javascript)
 
 This is a re-write of the PacELF document library browser in plain old javascript, with the intention to produce a site with minimal update requirements.
 
