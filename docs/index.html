@@ -180,6 +180,7 @@
         </div>
         <script>
             // --------------------------------------------
+            // config =====================================
             // --------------------------------------------
             const config = {
                 hideValues: ['', 'NO VALUE'],
@@ -201,10 +202,14 @@
                 }
             }   
             // --------------------------------------------
+            // globals ==================================== 
+            // --------------------------------------------
             let allFields = []
             let allItems = []
             let activeFilters = {fields: {}, strings: []}
             let filteredItems = []
+            // --------------------------------------------
+            // init process =============================== 
             // --------------------------------------------
             reportStatus('loading...')
 
@@ -226,7 +231,7 @@
                 reportError('could not load list of items.')
             })
             // --------------------------------------------
-            // Utility functions
+            // Utility functions ========================== 
             // --------------------------------------------
             // compact function for making a DOM element
             function makeNode(tag, className, ...content) {
