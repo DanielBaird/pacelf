@@ -203,6 +203,7 @@
             // --------------------------------------------
             let allFields = []
             let allItems = []
+            let activeFilters = {fields: {}, strings: []}
             let filteredItems = []
             // --------------------------------------------
             reportStatus('loading...')
@@ -216,9 +217,8 @@
                     // here we have the items loaded from the JSON file
                     allItems = items
                     buildFilters()
+                    applyFilters()
                     buildResultList()
-                    // TODO: remove this log
-                    console.log(items[0])
                 }).catch( err => {
                     reportError('could not load list of items.')
                 })
@@ -231,8 +231,8 @@
             // compact function for making a DOM element
             function makeNode(tag, className, ...content) {
                 let node = document.createElement(tag)
-                node.append(...content)
                 node.className = className
+                node.append(...content)
                 return node
             }
             // --------------------------------------------
@@ -279,7 +279,33 @@
                 res.appendChild( makeNode('div', 'message error', err) )
             }
             // --------------------------------------------
-            // construction of page elements
+            // convenience function to add a filter to the 
+            // active filters list. If there's no field given,
+            // assume it's a string search filter
+            function addFilter(value, field) {
+                if (field) {
+                    activeFilters.fields[field] = activeFilters.fields[field] || []
+                    activeFilters.fields[field].push(value)
+                } else {
+                    activeFilters.strings.push(value)
+                }
+            }
+            // --------------------------------------------
+            // convenience function to remove a filter from
+            // the active filters list. If there's no field 
+            // given, assume it's a string search filter
+            function removeFilter(value, field) {
+                if (field) {
+                    activeFilters.fields[field] = activeFilters.fields[field].filter(f => f !== value)
+                    if (activeFilters.fields[field].length < 1) {
+                        delete activeFilters.fields[field]
+                    }
+                } else {
+                    activeFilters.strings = activeFilters.strings.filter(f => f !== value)
+                }
+            }
+            // --------------------------------------------
+            // construction of page elements ==============
             // --------------------------------------------
             // go through the fields we want to filter
             // by, and make page elememnts for them
@@ -297,6 +323,10 @@
 
                 const filtersElement = document.querySelector('section.filters')
                 filtersElement.innerHTML = ''
+
+                const currentFilters = makeNode('div', 'currentFilters')
+                filtersElement.append( currentFilters )
+
                 filtersElement.append( makeNode('div', 'filtersHeader', 'Filter by') )
 
                 allFields.forEach( fieldId => {
@@ -331,6 +361,7 @@
                 })
                 // sorrt alphabetically but put "empty" values at the start of the list
                 domain.sort( (a, b) => {
+                    // TODO: does this need to handle "both empty"?
                     if (config.hideValues.includes(a)) return -1
                     if (config.hideValues.includes(b)) return 1
                     // otherwise sort alphabetically
@@ -343,9 +374,10 @@
                     // when the toggle is clicked, add or remove 
                     // the "closed" class on the parent filter
                     event.target.closest('.filter').classList.toggle('closed')
+
                 }) 
                 let filterHead = makeNode('div', 'filterHead', filterLabel, filterToggle)
-                let filterList = makeNode('div', 'filterList', ...(domain.map( domItem => buildCheckboxItem(domItem))))
+                let filterList = makeNode('div', 'filterList', ...(domain.map( domItem => buildCheckboxItem(domItem, fieldId))))
 
                 let filterElement = makeNode('div', 'filter closed', filterHead, filterList)
 
@@ -354,19 +386,70 @@
             // --------------------------------------------
             // make a checkbox item for one possible
             // value for a given field's filter
-            function buildCheckboxItem(value) {
+            function buildCheckboxItem(value, field) {
                 let cb = makeNode('input')
                 cb.setAttribute('type', 'checkbox')
+
+                cb.addEventListener('change', (event) => {
+                    console.log(field, value, event.target.checked)
+                    if (event.target.checked) {
+                        addFilter(value, field)
+                    } else {
+                        removeFilter(value, field)
+                    }
+                    console.log(activeFilters)
+                    applyFilters()
+                    buildResultList()
+                })
 
                 let label = makeNode('label', '', cb, value)
                 let item = makeNode('div', 'filterItem', label)
                 return item
             }
             // --------------------------------------------
+            // make page elements for the active filters
+            function buildFilterDisplay() {
+
+                // first, field filters
+                for (var field in activeFilters.fields) {
+                    let activeFilterFieldElement = document.querySelector(`.activeFilter[field=${field}]`)
+                    let values = activeFilters.fields[field]
+                    filteredItems = filteredItems.filter( item => {
+                        // if the item doesn't have the field, filter it out
+                        if (!item[field]) return false
+                        // if the item has the field, but it's not an array, make it an array
+                        let itemValues = item[field]
+                        if (!(itemValues instanceof Array)) {
+                            itemValues = [itemValues]
+                        }
+                        // if any of the item's values for the field are in the list of filter values, keep it
+                        return itemValues.some( val => values.includes(val) )
+                    })
+                }
+
+            }
+            // --------------------------------------------
             // filter the list of all items by whatever is
             // selected in the filter list
             function applyFilters() {
                 filteredItems = allItems
+
+                // apply field filters
+                for (var field in activeFilters.fields) {
+                    let values = activeFilters.fields[field]
+                    filteredItems = filteredItems.filter( item => {
+                        // if the item doesn't have the field, filter it out
+                        if (!item[field]) return false
+                        // if the item has the field, but it's not an array, make it an array
+                        let itemValues = item[field]
+                        if (!(itemValues instanceof Array)) {
+                            itemValues = [itemValues]
+                        }
+                        // if any of the item's values for the field are in the list of filter values, keep it
+                        return itemValues.some( val => values.includes(val) )
+                    })
+                }
+
             }
             // --------------------------------------------
             // go through the filtered list of results and
@@ -374,8 +457,6 @@
             function buildResultList() {
                 let resultElement = document.querySelector('section.results')
                 resultElement.innerHTML = ""
-
-                applyFilters()
 
                 if (filteredItems.length < 1) {
                     reportStatus('no items to display')
