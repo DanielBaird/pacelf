@@ -142,8 +142,8 @@
                 font-weight: bold;
                 padding: 0.25em 0;
             }
-            .result .details { overflow: hidden; }
-            .result.closed .details {
+            .result .details, .result .quiet { overflow: hidden; }
+            .result.closed .details, .result.closed .quiet {
                 height: 0;
             }
             .result .field {
@@ -178,32 +178,11 @@
                 </section>
             </section>
         </div>
-        <script>
-            // --------------------------------------------
-            // config =====================================
-            // --------------------------------------------
-            const config = {
-                hideValues: ['', 'NO VALUE'],
-                noFilter: ['Title', 'Description', 'Volume/Issue', 'PDF_file_name', 'URL'],
-                quietFields: ['PDF_file_name', 'URL'],
-                hideFromSearch: ['PDF_file_name', 'URL', 'Year'],
-                fields: {
-                    Title: {
-                        display: 'unlabeled header',
-                        format: 'bold'
-                    },
-                    Authors: { 
-                        display: 'unlabeled header',
-                        format: 'italic'
-                    },
-                    Year:          { filter: 'range' }, 
-                    Language:      { filter: 'category' },
-                    Work_Location: { label:  'Location' }
-                }
-            }   
+        <script> 
             // --------------------------------------------
             // globals ==================================== 
             // --------------------------------------------
+            let config = {}
             let allFields = []
             let allItems = []
             let activeFilters = {fields: {}, strings: []}
@@ -211,24 +190,40 @@
             // --------------------------------------------
             // init process =============================== 
             // --------------------------------------------
-            reportStatus('loading...')
+            reportStatus('loading configuration...')
+            let configLoader = fetch('./jdl-config.json')
+            configLoader.then( (cfgResponse) => {
+                reportStatus('parsing configuration...')
+                let cfgParser = cfgResponse.json()
+                cfgParser.then( (cfg) => {
+                    // here we have the config loaded from the JSON file
+                    config = cfg
 
-            let itemLoader = fetch('library-index.json')
-            itemLoader.then( (itemResponse) => {
-                reportStatus('parsing data...')
-                let itemParser = itemResponse.json()
-                itemParser.then( (items) => {
-                    reportStatus('preparing page...')
-                    // here we have the items loaded from the JSON file
-                    allItems = items
-                    buildFilters()
-                    applyFilters()
-                    buildResultList()
+                    // now we have config, we can load the items --------------
+                    let itemLoader = fetch(config?.dataUrl || './jdl-data.json')
+                    itemLoader.then( (itemResponse) => {
+                        reportStatus('parsing data...')
+                        let itemParser = itemResponse.json()
+                        itemParser.then( (items) => {
+                            reportStatus('preparing page...')
+                            // here we have the items loaded from the JSON file
+                            allItems = items
+                            buildFilters()
+                            applyFilters()
+                            buildResultList()
+                        }).catch( err => {
+                            reportError('could not load list of items.')
+                        })
+                    }).catch( err => {
+                        reportError('could not load list of items.')
+                    })
+                    // done loading items --------------------------------------
+
                 }).catch( err => {
-                    reportError('could not load list of items.')
+                    reportError('could not parse configuration file.')
                 })
             }).catch( err => {
-                reportError('could not load list of items.')
+                reportError('could not load configuration file.')
             })
             // --------------------------------------------
             // Utility functions ========================== 
@@ -239,6 +234,23 @@
                 node.className = className
                 node.append(...content)
                 return node
+            }
+            // --------------------------------------------
+            function fetchConfig(url) {
+                let configLoader = fetch(url)
+                configLoader.then( (configResponse) => {
+                    let configParser = configResponse.json()
+                    configParser.then( (cfg) => {
+                        config.fields = cfg.fields
+                        config.hideValues = cfg.hideValues
+                        config.noFilter = cfg.noFilter
+                        config.hideFromSearch = cfg.hideFromSearch
+                    }).catch( err => {
+                        reportError('could not load configuration file.')
+                    })
+                }).catch( err => {
+                    reportError('could not load configuration file.')
+                })
             }
             // --------------------------------------------
             function getFieldLabel(fieldId) {
@@ -475,6 +487,7 @@
             // make page elements for a single result item 
             function buildResult(item) {
 
+                // header
                 let header = makeNode('div', 'header clickable')
                 for (var fieldId in config.fields) {
                     cfg = config.fields[fieldId]
@@ -490,14 +503,35 @@
                     event.target.closest('.result').classList.toggle('closed')
                 })
 
-                let details = makeNode('div', 'details')
-                let result = makeNode('div', 'result closed', header, details)
+                // "normal" details
+                const quietFields = config?.quietFields || []
 
+                let details = makeNode('div', 'details')
                 for (var fieldKey in item) {
-                    let fieldValue = item[fieldKey]
-                    let field = makeField(fieldKey, item[fieldKey], true)
-                    details.append(field)
+                    if (!quietFields.includes(fieldKey)) {
+                        let fieldValue = item[fieldKey]
+                        let field = makeField(fieldKey, item[fieldKey], true)
+                        details.append(field)
+                    }
                 }
+
+                // "quiet" details
+                let hasQuiet = true
+                let quietDetails = makeNode('div', 'quiet')
+                for (var fieldKey in item) {
+                    if (quietFields.includes(fieldKey)) {
+                        let fieldValue = item[fieldKey]
+                        let field = makeField(fieldKey, item[fieldKey], true)
+                        quietDetails.append(field)
+                    }
+                }
+
+                let showQuiet = ''
+                if (hasQuiet) {
+                    showQuiet = makeNode('p', 'more italic', '... more details')
+                }
+
+                result = makeNode('div', 'result closed', header, details, showQuiet, quietDetails)
 
                 return result
             }

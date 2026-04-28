@@ -1,0 +1,20 @@
+{
+    "dataUrl": "library-index.json",
+    "hideValues": ["", "NO VALUE"],
+    "noFilter": ["Title", "Description", "Volume/Issue", "PDF_file_name", "URL"],
+    "quietFields": ["PDF_file_name", "URL"],
+    "hideFromSearch": ["PDF_file_name", "URL", "Year"],
+    "fields": {
+        "Title": {
+            "display": "unlabeled header",
+            "format": "bold"
+        },
+        "Authors": { 
+            "display": "unlabeled header",
+            "format": "italic"
+        },
+        "Year":          { "filter": "range" }, 
+        "Language":      { "filter": "category" },
+        "Work_Location": { "label":  "Location" }
+    }
+}
