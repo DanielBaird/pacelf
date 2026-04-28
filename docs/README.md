@@ -24,7 +24,6 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 #### Higher Priority
 
-- [ ] open all / close all result discosure / show details
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
@@ -39,12 +38,14 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [ ] support icon field specifying the caption field for showing text next to the icon ("iconcaption" is the default)
 - [ ] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
 - [ ] config file
-    - [ ] include json data filename
+    - [x] create config file  
+    - [x] include json data filename
     - [ ] include contact info for support
 
 #### Lower Priority
 
 - [ ] range for numeric field
 - [ ] sorting options
+- [ ] open all / close all result discosure / show details
 
 
