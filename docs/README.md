@@ -24,6 +24,7 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 #### Higher Priority
 
+- packaging: JS lib that you point at the div that should become the filterable list of items
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
@@ -36,10 +37,11 @@ to run a **https** server at https://localhost. The first time you run this you 
         - [ ] this will require a mod of Pauline's python
     - [ ] support icon field specifying the URL field for clicks ("url" or "URL" field is the default)
     - [ ] support icon field specifying the caption field for showing text next to the icon ("iconcaption" is the default)
-- [ ] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
+- [x] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
 - [ ] config file
     - [x] create config file  
     - [x] include json data filename
+    - [x] quiet field show/hide config
     - [ ] include contact info for support
 
 #### Lower Priority
@@ -47,5 +49,6 @@ to run a **https** server at https://localhost. The first time you run this you 
 - [ ] range for numeric field
 - [ ] sorting options
 - [ ] open all / close all result discosure / show details
+- [ ] optional icon feature; on hover, or something, offer a button to copy the link
 
 

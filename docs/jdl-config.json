@@ -3,6 +3,8 @@
     "hideValues": ["", "NO VALUE"],
     "noFilter": ["Title", "Description", "Volume/Issue", "PDF_file_name", "URL"],
     "quietFields": ["PDF_file_name", "URL"],
+    "quietLabel": "More details >",
+    "quietLabelFormat": "faded italic right smaller",
     "hideFromSearch": ["PDF_file_name", "URL", "Year"],
     "fields": {
         "Title": {
@@ -10,7 +12,7 @@
             "format": "bold"
         },
         "Authors": { 
-            "display": "unlabeled header",
+            "display": "header",
             "format": "italic"
         },
         "Year":          { "filter": "range" }, 

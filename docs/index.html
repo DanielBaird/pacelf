@@ -29,9 +29,13 @@
                 padding: 0;
             }
             /* some utility classes to make formatting easier */
-            .clickable { cursor:      pointer }
-            .bold      { font-weight: bold }
-            .italic    { font-style:  italic }
+            .clickable  { cursor:      pointer }
+            .bold       { font-weight: bold }
+            .italic     { font-style:  italic }
+            .right      { text-align:  right }
+            .center     { text-align:  center }
+            .faded      { opacity:     0.5 }
+            .smaller    { font-size:   80% }
             /* alerts mostly displayed in the results section */
             .message {
                 padding-top: 2em;
@@ -142,8 +146,11 @@
                 font-weight: bold;
                 padding: 0.25em 0;
             }
+            .result .quietLabel {
+                padding: 0.5em 0
+            }
             .result .details, .result .quiet { overflow: hidden; }
-            .result.closed .details, .result.closed .quiet {
+            .result.closed .details, .result.closed .quiet, .result.terse .quiet {
                 height: 0;
             }
             .result .field {
@@ -528,10 +535,18 @@
 
                 let showQuiet = ''
                 if (hasQuiet) {
-                    showQuiet = makeNode('p', 'more italic', '... more details')
+                    const quietLabel = config?.quietLabel || 'more >'
+                    const quietLabelFormat = config?.quietLabelFormat || 'faded italic center'
+                    showQuiet = makeNode('p', 'quietLabel clickable ' + quietLabelFormat, quietLabel)
+                    showQuiet.addEventListener('click', (event) => {
+                        // when the showQuiet is clicked, add or remove 
+                        // the "terse" class on the parent result
+                        event.target.closest('.result').classList.toggle('terse')
+                    })
+                    details.append(showQuiet)
                 }
 
-                result = makeNode('div', 'result closed', header, details, showQuiet, quietDetails)
+                result = makeNode('div', 'result closed terse', header, details, quietDetails)
 
                 return result
             }
