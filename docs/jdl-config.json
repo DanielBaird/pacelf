@@ -6,12 +6,13 @@
     "quietLabel": "More details >",
     "quietLabelFormat": "faded italic right smaller",
     "hideFromSearch": ["PDF_file_name", "URL", "Year"],
+    "iconField": "Icon",
     "fields": {
         "Title": {
             "display": "unlabeled header",
             "format": "bold"
         },
-        "Authors": { 
+        "Authors": {
             "display": "header",
             "format": "italic"
         },

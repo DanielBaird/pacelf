@@ -25,6 +25,10 @@ to run a **https** server at https://localhost. The first time you run this you 
 #### Higher Priority
 
 - packaging: JS lib that you point at the div that should become the filterable list of items
+    - [x] split into files
+    - [ ] specify a page element that everything gets built into
+    - [ ] trim up the CSS to let the page specify the font and maybe colours?
+        - [ ] default to some nice grey and white, support colours in config?
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
@@ -46,6 +50,7 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 #### Lower Priority
 
+- [ ] defaults for when no fields are nominated as headers
 - [ ] range for numeric field
 - [ ] sorting options
 - [ ] open all / close all result discosure / show details

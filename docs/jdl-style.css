@@ -1,0 +1,182 @@
+/* basic reset for box sizing */
+* { box-sizing: inherit; }
+:root {
+    interpolate-size: allow-keywords;
+    box-sizing: border-box;
+
+    --primary-color: #c10015;
+    --secondary-color: #273256;
+    --accent-color: #E9F0F2;
+    --dark-color: #00254a;
+
+    /* this font family will use the "system" font on any device */
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    /* this font size calc make the font larger on wider screens */
+    font-size: calc(13px + 0.4vw);
+}
+body {
+    background: var(--dark-color);
+    color: var(--accent-color);
+}
+h1 { font-weight: 100; }
+p, dl, dt {
+    margin: 0;
+    padding: 0;
+}
+/* some utility classes to make formatting easier */
+.clickable  { cursor:      pointer }
+.bold       { font-weight: bold }
+.italic     { font-style:  italic }
+.right      { text-align:  right }
+.center     { text-align:  center }
+.faded      { opacity:     0.5 }
+.smaller    { font-size:   80% }
+.icon       { 
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: "liga";
+}
+
+/* alerts mostly displayed in the results section */
+.message {
+    padding-top: 2em;
+    text-align: center;
+    font-size: 150%;
+    color: #039;
+}
+/* flavour of message */
+.error { color: #a00; }
+/* ----------------------------------------- */
+/* the main container for the page */
+.main {
+    max-width: 70em;
+    margin: 0 auto;
+    padding: 3em 1em;
+    background-color: var(--primary-color);
+}
+/* the main container for the filter and result list */
+.library {
+    display: flex;
+    direction: row;
+    gap: 1em;
+    align-items: stretch;
+    align-content: stretch;
+}
+/* ----------------------------------------- */
+/* the sidebar of filters */
+.filters {
+    width: 20em;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background-color: var(--secondary-color);
+    color: var(--accent-color);
+    padding: 0.5em;
+}
+.filtersHeader {
+    padding: 1em 0;
+}
+/* filter for a single tag */
+.filter {
+    padding: 0.5em;
+    border: 1px solid var(--dark-color);
+    border-width: 1px 0;
+    transition: 0.33s;
+}
+.filter:hover {
+    background-color: var(--dark-color);
+}
+.filterHead {
+    display: flex;
+    direction: row;
+    align-items: center;
+    align-content: stretch;
+}
+.filterLabel  { flex: 1 0; }
+
+/* the button to open/close the list of filter items */
+.filter .filterToggle {
+    color: inherit;
+    opacity: 0.5;
+    font-size: 110%;
+    transform: rotate(180deg);
+    transition: 0.33s;
+    background-color: rgba(0,0,0, 0);
+    height: 1.66em;
+    width: 1.66em;
+    border-radius: 50%;
+    border: none;
+} 
+.filterToggle:hover {
+    background-color: var(--secondary-color);
+}
+.filter .filterToggle:before { content: '▼'; }
+.filter.closed .filterToggle { transform: rotate(0); }
+
+.filterList { 
+    padding: 0.5em 0 0.5em 1em;
+    transition: 0.33s;
+    overflow: hidden;
+}
+.filter.closed .filterList {
+    padding: 0 0 0 1em;
+    height: 0;
+}
+/* a single possible value that you might filter on */
+.filterItem {
+    padding: 0.5em 0; 
+    transition: 0.33s;
+}
+.filterItem:hover {
+    background-color: var(--secondary-color);
+}
+/* ----------------------------------------- */
+.results {
+    flex: 1 1;
+    min-height: 10em;
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+    padding: 0 0.5em;
+}
+.result {
+    margin: 0.5em 0;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    background-color: white;
+}
+.result .head {
+    font-weight: bold;
+    padding: 0.25em 0;
+}
+.result .quietLabel {
+    padding: 0.5em 0
+}
+.result .details, .result .quiet { overflow: hidden; }
+.result.closed .details, .result.closed .quiet, .result.terse .quiet {
+    height: 0;
+}
+.result .field {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: first baseline;
+    padding: 0.25em 0;
+}
+.result .fieldLabel {
+    font-size: 70%;
+    font-style: italic;
+    min-width: 8em;
+    padding-right: 1em;
+}
+.result .fieldValue {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
