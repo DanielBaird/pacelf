@@ -1,10 +1,10 @@
 {
     "dataUrl": "library-index.json",
     "hideValues": ["", "NO VALUE"],
-    "noFilter": ["Title", "Description", "Volume/Issue", "PDF_file_name", "URL"],
-    "quietFields": ["PDF_file_name", "URL"],
+    "noFilter": ["ID", "Title", "Description", "Volume/Issue", "PDF_file_name", "URL"],
+    "quietFields": ["ID", "PDF_file_name", "URL", "Icon"],
     "quietLabel": "More details >",
-    "quietLabelFormat": "faded italic right smaller",
+    "quietLabelFormat": "faded italic center smaller",
     "hideFromSearch": ["PDF_file_name", "URL", "Year"],
     "iconField": "Icon",
     "fields": {
