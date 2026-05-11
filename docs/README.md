@@ -50,7 +50,7 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 #### Lower Priority
 
-- [ ] defaults for when no fields are nominated as headers
+- [x] defaults for when no fields are nominated as headers
 - [ ] range for numeric field
 - [ ] sorting options
 - [ ] open all / close all result discosure / show details

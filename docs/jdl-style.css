@@ -54,7 +54,11 @@ p, dl, dt {
     color: #039;
 }
 /* flavour of message */
-.error { color: #a00; }
+.error { color: #a00 }
+/* dev links are subtle links to our component files 
+to make manual refreshing easier */
+.devlinks a { color: #fff }
+.devlinks { margin: 3em 0 0 }
 /* ----------------------------------------- */
 /* the main container for the page */
 .main {

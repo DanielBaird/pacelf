@@ -1,6 +1,7 @@
 // --------------------------------------------
 // globals ==================================== 
 // --------------------------------------------
+const defaultHeaderFields = ['header', 'title', 'name']
 let config = {}
 let allFields = []
 let allItems = []
@@ -74,6 +75,18 @@ function fetchConfig(url) {
 // --------------------------------------------
 function getFieldLabel(fieldId) {
     return config.fields[fieldId]?.label || fieldId.replaceAll('_', ' ')
+}
+// --------------------------------------------
+function findUsefulField(item, fieldId) {
+    const itemKeys = Object.keys(item)
+    downcaseItemKeys = itemKeys.map( k => k.toLowerCase() )
+    fieldIndex = downcaseItemKeys.indexOf(fieldId.toLowerCase())
+    if (fieldIndex > -1) {
+        if (item[itemKeys[fieldIndex]].toString().length > 0) {
+            return itemKeys[fieldIndex]
+        }
+    }
+    return false
 }
 // --------------------------------------------
 // make a display field with a label and value 
@@ -168,6 +181,19 @@ function buildFilters() {
     allFields.forEach( fieldId => {
         buildFilter(fieldId)
     })
+
+    // dev mode: add links to our files, to make refreshes easier
+
+    let configLink = makeNode('a', 'faded smaller', 'config')
+    configLink.setAttribute('href', './jdl-config.json')
+    configLink.setAttribute('target', '_blank')
+
+    let jsLink = makeNode('a', 'faded smaller', 'js')
+    jsLink.setAttribute('href', './jdl.js')
+    jsLink.setAttribute('target', '_blank')
+
+    let devModeLinks = makeNode('div', 'devlinks center faded smaller', jsLink, " ", configLink)
+    filtersElement.append(devModeLinks)
 }
 // --------------------------------------------
 // make page elements for a single filter
@@ -227,13 +253,11 @@ function buildCheckboxItem(value, field) {
     cb.setAttribute('type', 'checkbox')
 
     cb.addEventListener('change', (event) => {
-        console.log(field, value, event.target.checked)
         if (event.target.checked) {
             addFilter(value, field)
         } else {
             removeFilter(value, field)
         }
-        console.log(activeFilters)
         applyFilters()
         buildResultList()
     })
@@ -313,25 +337,28 @@ function buildResult(item) {
 
     // are there any fields nominated for the header?
     let headerFields = fieldIdList.filter( fieldId => config.fields[fieldId].display?.includes('header') )
-    if (headerFields.length === 0) {
-        // TODO: try other fields -- header? title? name?
-        // Otherwise use the first field in the item
-    }
 
-    for (var fieldId in config.fields) {
-        cfg = config.fields[fieldId]
-        if (cfg?.display?.includes('header')) {
-            let field = makeField(fieldId, item[fieldId], !cfg.display.includes('unlabel'), cfg.format)
-            header.append( makeNode('p', '', field) )
+    if (headerFields.length === 0) {
+        // if the config doesn't help find header fields, look at
+        // each of our default header field names in turn
+        defaultHeaderFields.forEach( fieldId => {
+             let headerField = findUsefulField(item, fieldId)
+             if (headerField) { 
+                headerFields.push(headerField)
+            }
+        })
+        // if we didn't have config'd headers and also didn't find
+        // any default header fieldnames, use the item's first field
+        if (headerFields.length === 0) {
+            headerFields.push(Object.keys(item)[0])
         }
     }
 
-    // if there was no fields nominated to be in the header, 
-    // use the first field in the item
-    if (header.childNodes.length < 1) {
-        let field = makeField(Object.keys(item)[0], item[Object.keys(item)[0]], true, 'bold')
+    headerFields.forEach( fieldId => {
+        cfg = config.fields[fieldId] || { display: '', format: '' }
+        let field = makeField(fieldId, item[fieldId], !cfg.display.includes('unlabel'), cfg.format)
         header.append( makeNode('p', '', field) )
-    }
+    })
 
     header.addEventListener('click', (event) => {
         // when the title is clicked, add or remove 
@@ -344,7 +371,7 @@ function buildResult(item) {
 
     let details = makeNode('div', 'details')
     for (var fieldKey in item) {
-        if (!quietFields.includes(fieldKey)) {
+        if (!quietFields.includes(fieldKey) && !headerFields.includes(fieldKey)) {
             let fieldValue = item[fieldKey]
             let field = makeField(fieldKey, item[fieldKey], true)
             details.append(field)
