@@ -24,6 +24,8 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 #### Higher Priority
 
+- field types
+    - [ ] URL looking fields (URL, Link, website, email) that renders a clicky-link
 - packaging: JS lib that you point at the div that should become the filterable list of items
     - [x] split into files
     - [ ] specify a page element that everything gets built into
@@ -36,11 +38,11 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [ ] string search
         - [ ] allow "hide from search" fields config
 - [ ] mobile layout
-- [ ] include support for icons (just get a name from the Material Icon font)
-    - [ ] if there's a URL, do that when the icon is clicked
+- [x] include support for icons (just get a name from the Material Icon font)
+    - [x] if there's a URL, do that when the icon is clicked
         - [ ] this will require a mod of Pauline's python
-    - [ ] support icon field specifying the URL field for clicks ("url" or "URL" field is the default)
-    - [ ] support icon field specifying the caption field for showing text next to the icon ("iconcaption" is the default)
+    - [x] support icon field specifying the URL field for clicks ("url" or "URL" field is the default)
+ ("iconcaption" is the default)
 - [x] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
 - [ ] config file
     - [x] create config file  

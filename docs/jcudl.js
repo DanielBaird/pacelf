@@ -11,7 +11,7 @@ let filteredItems = []
 // init process =============================== 
 // --------------------------------------------
 reportStatus('loading configuration...')
-let configLoader = fetch('./jdl-config.json')
+let configLoader = fetch('./jcudl-config.json')
 configLoader.then( (cfgResponse) => {
     reportStatus('parsing configuration...')
     let cfgParser = cfgResponse.json()
@@ -20,7 +20,7 @@ configLoader.then( (cfgResponse) => {
         config = cfg
 
         // now we have config, we can load the items --------------
-        let itemLoader = fetch(config?.dataUrl || './jdl-data.json')
+        let itemLoader = fetch(config?.dataUrl || './jcudl-data.json')
         itemLoader.then( (itemResponse) => {
             reportStatus('parsing data...')
             let itemParser = itemResponse.json()
@@ -185,14 +185,18 @@ function buildFilters() {
     // dev mode: add links to our files, to make refreshes easier
 
     let configLink = makeNode('a', 'faded smaller', 'config')
-    configLink.setAttribute('href', './jdl-config.json')
+    configLink.setAttribute('href', './jcudl-config.json')
     configLink.setAttribute('target', '_blank')
 
-    let jsLink = makeNode('a', 'faded smaller', 'js')
-    jsLink.setAttribute('href', './jdl.js')
+    let jsLink = makeNode('a', 'faded smaller', 'script')
+    jsLink.setAttribute('href', './jcudl.js')
     jsLink.setAttribute('target', '_blank')
 
-    let devModeLinks = makeNode('div', 'devlinks center faded smaller', jsLink, " ", configLink)
+    let cssLink = makeNode('a', 'faded smaller', 'style')
+    cssLink.setAttribute('href', './jcudl-style.css')
+    cssLink.setAttribute('target', '_blank')
+
+    let devModeLinks = makeNode('div', 'devlinks center faded smaller', jsLink, " ", configLink, " ", cssLink)
     filtersElement.append(devModeLinks)
 }
 // --------------------------------------------
@@ -330,8 +334,28 @@ function buildResultList() {
 // make page elements for a single result item 
 function buildResult(item) {
 
+    console.log(item)
+
     // header
     let header = makeNode('div', 'header clickable')
+
+    // if we can do an icon, add it first
+    let iconFieldName = config.iconField || findUsefulField(item, 'icon')
+    let iconClickUrl = config.iconUrl || findUsefulField(item, 'url')
+    if (iconFieldName) {
+        let icon = makeNode('div', 'icon', item[iconFieldName])
+        if (iconClickUrl 
+                && iconClickUrl.toString().length > 0 
+                && item[iconClickUrl] 
+                && item[iconClickUrl].toString().length > 0
+            ) {
+            icon.classList.add('clickable')
+            icon.addEventListener('click', (event) => {
+                window.open(item[iconClickUrl], '_blank')
+            })
+        }
+        header.append(icon)
+    }
 
     let fieldIdList = Object.keys(config.fields)
 
@@ -359,6 +383,8 @@ function buildResult(item) {
         let field = makeField(fieldId, item[fieldId], !cfg.display.includes('unlabel'), cfg.format)
         header.append( makeNode('p', '', field) )
     })
+
+
 
     header.addEventListener('click', (event) => {
         // when the title is clicked, add or remove 
