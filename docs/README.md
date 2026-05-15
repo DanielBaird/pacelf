@@ -34,7 +34,7 @@ to run a **https** server at https://localhost. The first time you run this you 
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
-    - [ ] cap at 200 items (or config supplied cap; maybe "show all" button?)
+    - [x] cap at 200 items (or config supplied cap)
     - [ ] string search
         - [ ] allow "hide from search" fields config
 - [ ] mobile layout
@@ -45,7 +45,7 @@ to run a **https** server at https://localhost. The first time you run this you 
  ("iconcaption" is the default)
 - [x] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
 - [ ] config file
-    - [x] create config file  
+    - [x] create config file
     - [x] include json data filename
     - [x] quiet field show/hide config
     - [ ] include contact info for support
@@ -57,5 +57,6 @@ to run a **https** server at https://localhost. The first time you run this you 
 - [ ] sorting options
 - [ ] open all / close all result discosure / show details
 - [ ] optional icon feature; on hover, or something, offer a button to copy the link
+- [ ] "show all" button to see every item instead of the cap
 
 

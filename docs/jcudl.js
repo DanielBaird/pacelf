@@ -2,6 +2,7 @@
 // globals ==================================== 
 // --------------------------------------------
 const defaultHeaderFields = ['header', 'title', 'name']
+const defaultMaxResultCount = 100
 let config = {}
 let allFields = []
 let allItems = []
@@ -296,24 +297,38 @@ function buildFilterDisplay() {
 // filter the list of all items by whatever is
 // selected in the filter list
 function applyFilters() {
+
     filteredItems = allItems
 
-    // apply field filters
-    for (var field in activeFilters.fields) {
-        let values = activeFilters.fields[field]
-        filteredItems = filteredItems.filter( item => {
-            // if the item doesn't have the field, filter it out
-            if (!item[field]) return false
-            // if the item has the field, but it's not an array, make it an array
-            let itemValues = item[field]
-            if (!(itemValues instanceof Array)) {
-                itemValues = [itemValues]
+    console.log(activeFilters)
+    if (Object.keys(activeFilters.fields).length < 1) {
+        filteredItems = allItems
+    } else {
+        // if we have any active filters, we need to apply them
+        filteredItems = []
+        let field, values
+        allItems.every( item => {
+            for (field in activeFilters.fields) {
+                values = activeFilters.fields[field]
+                // if the item doesn't have the field, we don't want it
+                if (!item[field]) continue;
+                // if the item has the field, but it's not an array, make it an array
+                let itemValues = item[field]
+                if (!(itemValues instanceof Array)) {
+                    itemValues = [itemValues]
+                }
+                // if any of the item's values for the field are in the list of filter values, keep it
+                if (itemValues.some( val => values.includes(val) )) {
+                    filteredItems.push(item)
+                    break
+                }
             }
-            // if any of the item's values for the field are in the list of filter values, keep it
-            return itemValues.some( val => values.includes(val) )
+            // we're using .every() so that we can break by returning false
+            // use <= so we get one extra item (we won't show it, but if there's
+            // more than the max, we can tell the user about the cap)
+            return (filteredItems.length <= (config.maxResultCount || defaultMaxResultCount))
         })
     }
-
 }
 // --------------------------------------------
 // go through the filtered list of results and
@@ -326,20 +341,31 @@ function buildResultList() {
         reportStatus('no items to display')
     }
 
+    // do we have more results than our display cap?
+    const displayCap = config.maxResultCount || defaultMaxResultCount
+    let capMessage = `showing all ${filteredItems.length} results`
+    if (filteredItems.length === 1) {
+        capMessage = `showing the only result`
+    }
+    if (filteredItems.length > displayCap) {
+        capMessage = `showing first ${displayCap} results`
+        filteredItems = filteredItems.slice(0, displayCap)
+    }
+
     filteredItems.forEach( item => {
         resultElement.append(buildResult(item))
     })
+
+    resultElement.append( makeNode('div', 'message count', capMessage) )
 }
 // --------------------------------------------
 // make page elements for a single result item 
 function buildResult(item) {
 
-    console.log(item)
-
     // header
     let header = makeNode('div', 'header clickable')
 
-    // if we can do an icon, add it first
+    // if we can do an icon, that's the first thing into the header
     let iconFieldName = config.iconField || findUsefulField(item, 'icon')
     let iconClickUrl = config.iconUrl || findUsefulField(item, 'url')
     if (iconFieldName) {
