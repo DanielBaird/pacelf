@@ -31,6 +31,10 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [ ] specify a page element that everything gets built into
     - [ ] trim up the CSS to let the page specify the font and maybe colours?
         - [ ] default to some nice grey and white, support colours in config?
+            - [ ] allow config to specify CSS vars?
+- message display refactor
+    - [ ] existing "message" is too big for general display / list header / etc
+    - [ ] remember to include support info as specified by config
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
