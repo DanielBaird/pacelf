@@ -12,7 +12,8 @@
     /* this font family will use the "system" font on any device */
     font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     /* this font size calc make the font larger on wider screens */
-    font-size: calc(13px + 0.4vw);
+    /* font-size: calc(13px + 0.4vw); */
+    font-size: 16px;
 }
 body {
     background: var(--dark-color);
@@ -55,7 +56,7 @@ to make manual refreshing easier */
     background-color: var(--primary-color);
 }
 /* the main container for the filter and result list */
-.library {
+#jcudl-catalog {
     display: flex;
     direction: row;
     gap: 1em;
@@ -150,6 +151,7 @@ to make manual refreshing easier */
 }
 .icon {
     position: absolute;
+    overflow: hidden;
     left: 0.25rem;
     font-family: 'Material Symbols Outlined';
     font-weight: normal;

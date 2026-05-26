@@ -2,21 +2,59 @@
 
 This is a re-write of the PacELF document library browser in plain old javascript, with the intention to produce a site with minimal update requirements.
 
-### Running POJS
+### Setup
+
+A minimum setup includes three `jcudl` files and your JSON library data file.
+- `jcudl.js` is the core Javascript file that does most of the work
+- `jcudl-style.css` is the CSS required by jcudl
+- `jcudl-config.json` is the configuration for jcudl. Soon this will become optional but for now it's required
+- `jcudl-data.json` is the default name for your library data (you can set a different filename in `jcudl-config.json`). It should contain an array of objects, each object is a catalogued item with whatever metadata your items need
+
+#### Locate files
+
+- put `jcudl.js` and `jcudl-style.css` anywhere on your web server. The examples here assume you have stored them right next to your page's html file, but you can adjust the path to suit.
+- put `jcudl-config.json` next to your page's html file. Unlike other files it MUST be stored in the same directory as your html
+- put `jcudl-data.json` alongside your html file, or if you are specifying a path in the config you can put it anywhere you like
+
+#### Setup your web page
+
+- include `jcudl-style.css` and the icon font stylesheet in your page by adding these lines to your `<head>` tag. If you saved the CSS file alongside your page's html, that will look like this:
+```html
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="./jcudl-style.css" />
+```
+- include `jcudl.js` in your page by adding this tag at the bottom of your page, right before the closing `</body>` tag. If you saved the JS file alongside your page's html, that will look like this:
+```html
+    <script src="./jcudl.js"></script>
+```
+- include a div (or other block element) in your page with an id of `jcudl-catalog` wherever you want the catalog to show up:
+```html
+        <div id="jcudl-catalog">
+            <!-- jcudl catalog goes here -->
+        </div>        
+```
+
+### Running locally
 
 You can open the index.html file right in your browser but pages loaded from a `file://` URL will come with browser security restrictions on loading JSON. So I recommend using a file server like `caddy`.
 
+```bash
     brew install caddy
+```
 
 ...or visit https://caddyserver.com/docs/install to find an installion method for your platform.
 
 Once you have caddy installed, run
 
+```bash
     caddy file-server
+```
 
 to run a http server at http://localhost, or run
 
+```bash
     caddy file-server --domain localhost
+```
 
 to run a **https** server at https://localhost. The first time you run this you will have to become an admin and enter your password a couple of times so caddy can install certificates etc.
 
