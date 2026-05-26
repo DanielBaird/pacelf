@@ -90,7 +90,7 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [x] if there's a URL, do that when the icon is clicked
         - [ ] this will require a mod of Pauline's python
     - [x] support icon field specifying the URL field for clicks ("url" or "URL" field is the default)
-    - [x] support specifying a field to supply a pop-up tooltip for the icon ("iconCaption" is the default)
+    - [x] support specifying a field to supply a pop-up tooltip for the icon ("iconTooltip" is the default)
 
 - [x] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
 - [ ] config file
