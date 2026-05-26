@@ -1,8 +1,10 @@
-# POJS rewrite (plain old javascript)
+# JCU Digital Library Catalog
 
-This is a re-write of the PacELF document library browser in plain old javascript, with the intention to produce a site with minimal update requirements.
+This is a _plain ol' javascript_ tool to filter items in a JSON list. James Cook University uses it to access and search digital collections.
 
-### Setup
+---
+
+## Setup
 
 A minimum setup includes three `jcudl` files and your JSON library data file.
 - `jcudl.js` is the core Javascript file that does most of the work
@@ -34,9 +36,9 @@ A minimum setup includes three `jcudl` files and your JSON library data file.
         </div>        
 ```
 
-### Running locally
+## Running locally
 
-You can open the index.html file right in your browser but pages loaded from a `file://` URL will come with browser security restrictions on loading JSON. So I recommend using a file server like `caddy`.
+You can open your HTML file right in your browser but pages loaded from a `file://` URL will come with browser security restrictions on loading JSON. So I recommend using a file server like `caddy`.
 
 ```bash
     brew install caddy
@@ -58,7 +60,7 @@ to run a http server at http://localhost, or run
 
 to run a **https** server at https://localhost. The first time you run this you will have to become an admin and enter your password a couple of times so caddy can install certificates etc.
 
-### Todo
+## Todo
 
 #### Higher Priority
 
