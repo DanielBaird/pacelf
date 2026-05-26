@@ -6,6 +6,7 @@
     "quietLabel": "Additional details >",
     "quietLabelFormat": "faded italic center smaller",
     "maxResultCount": 20,
+    "iconTooltip": "Access_Rights",
     "hideFromSearch": ["PDF_file_name", "URL", "Year"],
     "fields": {
         "Title": {

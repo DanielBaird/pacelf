@@ -60,23 +60,6 @@ function makeNode(tag, className, ...content) {
     return node
 }
 // --------------------------------------------
-function fetchConfig(url) {
-    let configLoader = fetch(url)
-    configLoader.then( (configResponse) => {
-        let configParser = configResponse.json()
-        configParser.then( (cfg) => {
-            config.fields = cfg.fields
-            config.hideValues = cfg.hideValues
-            config.noFilter = cfg.noFilter
-            config.hideFromSearch = cfg.hideFromSearch
-        }).catch( err => {
-            reportError('could not load configuration file.')
-        })
-    }).catch( err => {
-        reportError('could not load configuration file.')
-    })
-}
-// --------------------------------------------
 function getFieldLabel(fieldId) {
     return config.fields[fieldId]?.label || fieldId.replaceAll('_', ' ')
 }
@@ -387,8 +370,13 @@ function buildResult(item) {
     // if we can do an icon, that's the first thing into the header
     let iconFieldName = config.iconField || findUsefulField(item, 'icon')
     let iconClickUrl = config.iconUrl || findUsefulField(item, 'url')
+    let iconTooltip = config.iconTooltip || findUsefulField(item, 'iconDescription')
+    console.log(iconTooltip)
     if (iconFieldName) {
         let icon = makeNode('div', 'icon', item[iconFieldName])
+        if (iconTooltip) {
+            icon.setAttribute('title', item[iconTooltip])
+        }
         if (iconClickUrl 
                 && iconClickUrl.toString().length > 0 
                 && item[iconClickUrl] 
