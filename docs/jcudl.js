@@ -371,7 +371,6 @@ function buildResult(item) {
     let iconFieldName = config.iconField || findUsefulField(item, 'icon')
     let iconClickUrl = config.iconUrl || findUsefulField(item, 'url')
     let iconTooltip = config.iconTooltip || findUsefulField(item, 'iconDescription')
-    console.log(iconTooltip)
     if (iconFieldName) {
         let icon = makeNode('div', 'icon', item[iconFieldName])
         if (iconTooltip) {
