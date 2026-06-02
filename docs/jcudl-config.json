@@ -1,5 +1,5 @@
 {
-    "dataUrl": "../library-index.json",
+    "dataUrl": "library-index.json",
     "hideValues": ["", "NO VALUE"],
     "noFilter": ["ID", "Title", "Description", "Volume/Issue", "PDF_file_name"],
     "quietFields": ["ID", "PDF_file_name", "URL", "Icon"],
