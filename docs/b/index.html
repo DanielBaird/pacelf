@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            /* page custom fonts etc */
+:root {
+
+    --primary-color: #c10015;
+    --secondary-color: #273256;
+    --accent-color: #E9F0F2;
+    --dark-color: #00254a;
+
+    font-family: Garamond, Baskerville, Baskerville Old Face, Hoefler Text, Times New Roman, serif;  
+    font-size: 26px;
+}
+body {
+    background: var(--dark-color);
+    color: var(--accent-color);
+}
+.container {
+    border: 1em solid #ffc0cb99;
+    margin-left: auto;
+    margin-right: auto;
+}
+button { font-size: 1rem; padding: 0.5em 1em; border-radius: 1em; }
+.narrow { max-width: 45rem; }
+        </style>
+        <!-- grab the font with Google Material Symbols that we use for icons -->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <link rel="stylesheet" href="/jcudl-style.css" />
+    </head>
+    <body>
+        <h1>JCU Digital Library Catalog</h1>
+        <p>Larger font, serif font family, some page colours</p>
+        <p><center>
+            <button onclick="document.querySelector('.container').classList.toggle('narrow')">
+                Toggle wide/narrow
+            </button>
+        </center></p>
+        <div class="container narrow">
+            <div id="jcudl-catalog"></div>        
+        </div>
+        <script src="/jcudl.js"></script>
+    </body>
+</html>

@@ -147,15 +147,15 @@ function removeFilter(value, field) {
 // by, and make page elememnts for them
 function preparePage() {
     // find the element to put our catalog into
-    const catalogElement = document.querySelector('#jcudl-catalog')
+    const wrapperElement = document.querySelector('#jcudl-catalog')
 
     // if we have a catalog element, move our filters and results sections into it
-    if (catalogElement) {
+    if (wrapperElement) {
         const filtersElement = makeNode('section', 'filters')
         const birthStatusElement = makeNode('div', 'message status', 'Initialising...')
         const resultsElement = makeNode('section', 'results', birthStatusElement)
-        catalogElement.append(filtersElement)
-        catalogElement.append(resultsElement)
+        const catalogElement = makeNode('div', 'catalog', filtersElement, resultsElement)
+        wrapperElement.append(catalogElement)
     } else {
         console.error('jcudl: JCU Digital Catalog could not find a #jcudl-catalog element.')
     }

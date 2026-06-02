@@ -107,5 +107,6 @@ to run a **https** server at https://localhost. The first time you run this you 
 - [ ] open all / close all result discosure / show details
 - [ ] optional icon feature; on hover, or something, offer a button to copy the link
 - [ ] "show all" button to see every item instead of the cap
+- [ ] make popup-on-icon-hover text a bit larger than browser default 
 
 
