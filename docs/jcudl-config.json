@@ -8,6 +8,7 @@
     "maxResultCount": 20,
     "iconTooltip": "Access_Rights",
     "hideFromSearch": ["PDF_file_name", "URL", "Year"],
+    "supportText": "contact eResearch@jcu.edu.au if problems persist",
     "fields": {
         "Title": {
             "display": "unlabeled header",

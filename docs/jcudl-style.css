@@ -19,8 +19,12 @@
         --message-bad-bg: var(--jcudl-message-bg, #fee);
         --message-bad-text: var(--jcudl-message-bad-text, #700);
 
+        --interface-bg: var(--jcudl-interface-bg, var(--filter-item));
+        --interface-text: var(--jcudl-interface-text, var(--filter-text));
         --interface-bg: var(--jcudl-interface-bg, var(--data-active));
         --interface-text: var(--jcudl-interface-text, var(--data-text));
+
+        --corner: var(--jcudl-corner, 0.5rem);
 
         container-name: jcudl-wrapper;
         container-type: inline-size;
@@ -45,7 +49,7 @@
     /* -- message styles ------------------------------- */
     .message {
         display: block;
-        padding: 2em 0;
+        padding: 1em 0;
         border-radius: 3em;
         margin: 2em auto;
         max-width: 30em;
@@ -54,6 +58,9 @@
         background-color: var(--message-good-bg);
         color: var(--message-good-text);
     }
+    .message .msg {
+        padding: 0.25em 0;
+    }
     /* flavour of message */
     .message.error { 
         color: var(--message-bad-text);
@@ -61,6 +68,16 @@
         border: 0.1em solid;
     }
     .message.count { font-size: 1rem }
+
+    /* -- interface styles ----------------------------- */
+    .interface {
+        padding: 0.5em;
+        margin: 0.5em 0;
+        border-radius: var(--corner);
+        text-align: center;
+        background-color: var(--interface-bg);
+        color: var(--interface-text);
+    }
 
     /* -- dev links ------------------------------------ */
     /* dev links are subtle links to our component files 
@@ -81,6 +98,7 @@
         background-color: var(--filter-bg);
         color: var(--filter-text);
         padding: 0.5em;
+        border-radius: var(--corner);
         max-width: 30rem;
         margin: 0 auto;
     }
@@ -88,6 +106,7 @@
         flex: 1 1;
         min-height: 10em;
         background-color: var(--data-bg);
+        border-radius: var(--corner);
         color: var(--data-text);
         padding: 0.01px 0.5em;
     }
@@ -157,7 +176,7 @@
     .result {
         margin: 0.5em 0;
         padding: 0.5em;
-        border-radius: 0.5em;
+        border-radius: var(--corner);
         background-color: var(--data-item);
     }
     .result:hover {

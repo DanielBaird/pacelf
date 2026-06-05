@@ -36,18 +36,18 @@ configLoader.then( (cfgResponse) => {
                 applyFilters()
                 buildResultList()
             }).catch( err => {
-                reportError('could not load list of items.')
+                reportError('Catalog could not parse the item list.')
             })
         }).catch( err => {
-            reportError('could not load list of items.')
+            reportError('Catalog could not load the item list.')
         })
         // done loading items --------------------------------------
 
     }).catch( err => {
-        reportError('could not parse configuration file.')
+        reportError('Catalog could not parse configuration file.')
     })
 }).catch( err => {
-    reportError('could not load configuration file.')
+    reportError('Catalog could not load configuration file.')
 })
 // --------------------------------------------
 // Utility functions ========================== 
@@ -104,15 +104,22 @@ function makeField(fieldId, fieldValue, labelled, format) {
 }
 // --------------------------------------------
 function reportStatus(msg) {
-    let res = document.querySelector('section.results')
-    res.innerHTML = ''
-    res.appendChild( makeNode('div', 'message status', msg) )
+    reportMessage(msg)
 }
 // --------------------------------------------
 function reportError(err) {
+    reportMessage(err, 'error', config.supportText ?? undefined)
+}
+// --------------------------------------------
+function reportMessage(msg, style='status', additionalContent) {
     let res = document.querySelector('section.results')
+    const mainMsg = makeNode('div', 'msg', msg)
+    const msgContainer = makeNode('div', 'message ' + style, mainMsg)
+    if (additionalContent) {
+        msgContainer.append(makeNode('div', 'msg smaller', additionalContent))
+    }
     res.innerHTML = ''
-    res.appendChild( makeNode('div', 'message error', err) )
+    res.appendChild( msgContainer )
 }
 // --------------------------------------------
 // convenience function to add a filter to the 
@@ -303,6 +310,7 @@ function applyFilters() {
     filteredItems = allItems
 
     console.log(activeFilters)
+
     if (Object.keys(activeFilters.fields).length < 1) {
         filteredItems = allItems
     } else {
@@ -345,12 +353,12 @@ function buildResultList() {
 
     // do we have more results than our display cap?
     const displayCap = config.maxResultCount || defaultMaxResultCount
-    let capMessage = `showing all ${filteredItems.length} results`
+    let capInfo = `showing all ${filteredItems.length} results`
     if (filteredItems.length === 1) {
-        capMessage = `showing the only result`
+        capInfo = `showing the only result`
     }
     if (filteredItems.length > displayCap) {
-        capMessage = `showing first ${displayCap} results`
+        capInfo = `showing first ${displayCap} results`
         filteredItems = filteredItems.slice(0, displayCap)
     }
 
@@ -358,7 +366,8 @@ function buildResultList() {
         resultElement.append(buildResult(item))
     })
 
-    resultElement.append( makeNode('div', 'message count', capMessage) )
+    resultElement.append( makeNode('div', 'interface', capInfo) )
+    resultElement.prepend( makeNode('div', 'interface', capInfo) )
 }
 // --------------------------------------------
 // make page elements for a single result item 

@@ -72,13 +72,13 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [ ] URL looking fields (URL, Link, website, email) that renders a clicky-link
 - packaging: JS lib that you point at the div that should become the filterable list of items
     - [x] split into files
-    - [ ] specify a page element that everything gets built into
-    - [ ] trim up the CSS to let the page specify the font and maybe colours?
-        - [ ] default to some nice grey and white, support colours in config?
-            - [ ] allow config to specify CSS vars?
+    - [x] specify a page element that everything gets built into
+    - [x] trim up the CSS to let the page specify the font and maybe colours
+        - [x] default to some nice grey and white, support colours in config
+            - [x] allow config to specify CSS vars
 - message display refactor
-    - [ ] existing "message" is too big for general display / list header / etc
-    - [ ] remember to include support info as specified by config
+    - [x] existing "message" is too big for general display / list header / etc
+    - [x] remember to include support info as specified by config
 - filtering
     - [x] OR between options within a single dimension, AND between dimensions
     - [ ] show active filters, have a "x' button to remove that filter
@@ -97,7 +97,7 @@ to run a **https** server at https://localhost. The first time you run this you 
     - [x] create config file
     - [x] include json data filename
     - [x] quiet field show/hide config
-    - [ ] include contact info for support
+    - [x] include contact info for support
 
 #### Lower Priority
 
