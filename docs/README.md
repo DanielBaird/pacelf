@@ -42,6 +42,7 @@ A minimum setup includes three `jcudl` files and your JSON library data file.
 
 Here are the CSS variable names for the colours used by JCUDLC, along with the defaults that will be used if you don't specify it yourself.
 
+```
 --jcudl-filter-bg, #111
 --jcudl-filter-item, #222
 --jcudl-filter-active, #333
@@ -63,7 +64,7 @@ Here are the CSS variable names for the colours used by JCUDLC, along with the d
 --jcudl-interface-text, var(--filter-text)
 --jcudl-interface-bg, var(--data-active)
 --jcudl-interface-text, var(--data-text)
-
+```
 
 ---
 
