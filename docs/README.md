@@ -38,6 +38,35 @@ A minimum setup includes three `jcudl` files and your JSON library data file.
 
 ---
 
+## Colours
+
+Here are the CSS variable names for the colours used by JCUDLC, along with the defaults that will be used if you don't specify it yourself.
+
+--jcudl-filter-bg, #111
+--jcudl-filter-item, #222
+--jcudl-filter-active, #333
+--jcudl-filter-highlight, #000
+--jcudl-filter-text, #ddd
+
+--jcudl-data-bg, #bbb
+--jcudl-data-item, #fff
+--jcudl-data-active, #eee
+--jcudl-data-highlight, #ffffec
+--jcudl-data-text, #111
+
+--jcudl-message-bg, #ecf6ff
+--jcudl-message-good-text, #037
+--jcudl-message-bg, #fee
+--jcudl-message-bad-text, #700
+
+--jcudl-interface-bg, var(--filter-item)
+--jcudl-interface-text, var(--filter-text)
+--jcudl-interface-bg, var(--data-active)
+--jcudl-interface-text, var(--data-text)
+
+
+---
+
 ## Running locally
 
 You can open your HTML file right in your browser but pages loaded from a `file://` URL will come with browser security restrictions on loading JSON. So I recommend using a file server like `caddy`.
@@ -66,11 +95,45 @@ to run a **https** server at https://localhost. The first time you run this you 
 
 ## Todo
 
+
+#### Changes to data file
+
+- [ ] URL to follow when icon clicked: requires a mod of Pauline's python
+
 #### Higher Priority
 
 - field types
     - [ ] URL looking fields (URL, Link, website, email) that renders a clicky-link
-- packaging: JS lib that you point at the div that should become the filterable list of items
+- filtering
+    - [x] AND between all options
+    - [x] show active filters
+    - [ ] active filters have an "x" button to remove that filter
+    - [x] cap at 200 items (or config supplied cap)
+    - [ ] string search
+        - [ ] allow "hide from search" fields config
+    - [ ] for each filter item, show result count for that additional filter
+- [ ] mobile layout
+- [ ] config file
+    - [x] create config file
+    - [x] include json data filename
+    - [x] quiet field show/hide config
+    - [x] include contact info for support
+- [ ] thorough documentation
+
+#### Lower Priority
+
+- [ ] fix message backgrounds (good and bad messages don't have separately customisable bgs)
+- [ ] range for numeric field
+- [ ] sorting options
+- [ ] open all / close all result discosure / show details
+- [ ] optional icon feature; on hover, or something, offer a button to copy the link
+- [ ] "show all" button to see every item instead of the cap
+- [ ] make popup-on-icon-hover text a bit larger than browser default 
+
+#### Complete
+
+- [x] defaults for when no fields are nominated as headers
+- [x] packaging: JS lib that you point at the div that should become the filterable list of items
     - [x] split into files
     - [x] specify a page element that everything gets built into
     - [x] trim up the CSS to let the page specify the font and maybe colours
@@ -79,34 +142,10 @@ to run a **https** server at https://localhost. The first time you run this you 
 - message display refactor
     - [x] existing "message" is too big for general display / list header / etc
     - [x] remember to include support info as specified by config
-- filtering
-    - [x] OR between options within a single dimension, AND between dimensions
-    - [ ] show active filters, have a "x' button to remove that filter
-    - [x] cap at 200 items (or config supplied cap)
-    - [ ] string search
-        - [ ] allow "hide from search" fields config
-- [ ] mobile layout
+    - [x] background activity indicator
 - [x] include support for icons (just get a name from the Material Icon font)
     - [x] if there's a URL, do that when the icon is clicked
-        - [ ] this will require a mod of Pauline's python
     - [x] support icon field specifying the URL field for clicks ("url" or "URL" field is the default)
     - [x] support specifying a field to supply a pop-up tooltip for the icon ("iconTooltip" is the default)
-
-- [x] "quiet" fields (to go with Header and Normal) that are in an additional disclosure area
-- [ ] config file
-    - [x] create config file
-    - [x] include json data filename
-    - [x] quiet field show/hide config
-    - [x] include contact info for support
-
-#### Lower Priority
-
-- [x] defaults for when no fields are nominated as headers
-- [ ] range for numeric field
-- [ ] sorting options
-- [ ] open all / close all result discosure / show details
-- [ ] optional icon feature; on hover, or something, offer a button to copy the link
-- [ ] "show all" button to see every item instead of the cap
-- [ ] make popup-on-icon-hover text a bit larger than browser default 
 
 

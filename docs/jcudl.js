@@ -6,7 +6,7 @@ const defaultMaxResultCount = 100
 let config = {}
 let allFields = []
 let allItems = []
-let activeFilters = {fields: {}, strings: []}
+let activeFilters = {field: [], string: []}
 let filteredItems = []
 // --------------------------------------------
 // init process =============================== 
@@ -14,10 +14,10 @@ let filteredItems = []
 // find an element to put our catalog into
 preparePage()
 
-reportStatus('loading configuration...')
+reportProgress('loading configuration...')
 let configLoader = fetch('./jcudl-config.json')
 configLoader.then( (cfgResponse) => {
-    reportStatus('parsing configuration...')
+    reportProgress('parsing configuration...')
     let cfgParser = cfgResponse.json()
     cfgParser.then( (cfg) => {
         // here we have the config loaded from the JSON file
@@ -26,10 +26,10 @@ configLoader.then( (cfgResponse) => {
         // now we have config, we can load the items --------------
         let itemLoader = fetch(config?.dataUrl || './jcudl-data.json')
         itemLoader.then( (itemResponse) => {
-            reportStatus('parsing data...')
+            reportProgress('parsing data...')
             let itemParser = itemResponse.json()
             itemParser.then( (items) => {
-                reportStatus('preparing page...')
+                reportProgress('preparing page...')
                 // here we have the items loaded from the JSON file
                 allItems = items
                 buildFilters()
@@ -107,6 +107,10 @@ function reportStatus(msg) {
     reportMessage(msg)
 }
 // --------------------------------------------
+function reportProgress(msg) {
+    reportMessage(msg, 'status progress')
+}
+// --------------------------------------------
 function reportError(err) {
     reportMessage(err, 'error', config.supportText ?? undefined)
 }
@@ -127,10 +131,9 @@ function reportMessage(msg, style='status', additionalContent) {
 // assume it's a string search filter
 function addFilter(value, field) {
     if (field) {
-        activeFilters.fields[field] = activeFilters.fields[field] || []
-        activeFilters.fields[field].push(value)
+        activeFilters.field.push({fieldName: field, value: value})
     } else {
-        activeFilters.strings.push(value)
+        activeFilters.string.push(value)
     }
 }
 // --------------------------------------------
@@ -139,12 +142,9 @@ function addFilter(value, field) {
 // given, assume it's a string search filter
 function removeFilter(value, field) {
     if (field) {
-        activeFilters.fields[field] = activeFilters.fields[field].filter(f => f !== value)
-        if (activeFilters.fields[field].length < 1) {
-            delete activeFilters.fields[field]
-        }
+        activeFilters.field = activeFilters.field.filter(f => !(f.fieldName === field && f.value === value))
     } else {
-        activeFilters.strings = activeFilters.strings.filter(f => f !== value)
+        activeFilters.string = activeFilters.string.filter(f => f !== value)
     }
 }
 // --------------------------------------------
@@ -282,24 +282,48 @@ function buildCheckboxItem(value, field) {
 }
 // --------------------------------------------
 // make page elements for the active filters
-function buildFilterDisplay() {
+function buildCurrentFiltersDisplay() {
+
+    let currentFiltersElement = makeNode('div', 'currentFilters')
+
+    let hasFilters = activeFilters.field.length > 0 || activeFilters.string.length > 0
+    if (hasFilters) {
+        currentFiltersElement.append( makeNode('span', 'filtersLabel', 'Current filters:') )
+    }
+
+    activeFilters.field.forEach( f => {
+        let filterLabel = getFieldLabel(f.fieldName)
+        let filterValue = f.value
+        let filterPill = makeNode('span', 'filterPill', `${filterLabel}: ${filterValue}`)
+        let removeButton = makeNode('button', 'removeFilter clickable', '\u00d7') // \u00d7 is a multiplication sign
+        removeButton.addEventListener('click', (event) => {
+            removeFilter(filterValue, f.fieldName)
+            applyFilters()
+            buildResultList()
+        })
+        filterPill.append(removeButton)
+        currentFiltersElement.append(filterPill)
+    })
+    return currentFiltersElement
+
+    // where to put this
 
     // first, field filters
-    for (var field in activeFilters.fields) {
-        let activeFilterFieldElement = document.querySelector(`.activeFilter[field=${field}]`)
-        let values = activeFilters.fields[field]
-        filteredItems = filteredItems.filter( item => {
-            // if the item doesn't have the field, filter it out
-            if (!item[field]) return false
-            // if the item has the field, but it's not an array, make it an array
-            let itemValues = item[field]
-            if (!(itemValues instanceof Array)) {
-                itemValues = [itemValues]
-            }
-            // if any of the item's values for the field are in the list of filter values, keep it
-            return itemValues.some( val => values.includes(val) )
-        })
-    }
+    // for (var field in activeFilters.fields) {
+    //     let activeFilterFieldElement = document.querySelector(`.activeFilter[field=${field}]`)
+    //     let values = activeFilters.fields[field]
+    //     filteredItems = filteredItems.filter( item => {
+    //         // if the item doesn't have the field, filter it out
+    //         if (!item[field]) return false
+    //         // if the item has the field, but it's not an array, make it an array
+    //         let itemValues = item[field]
+    //         if (!(itemValues instanceof Array)) {
+    //             itemValues = [itemValues]
+    //         }
+    //         // if any of the item's values for the field are in the list of filter values, keep it
+    //         return itemValues.some( val => values.includes(val) )
+    //     })
+    // }
 
 }
 // --------------------------------------------
@@ -309,34 +333,32 @@ function applyFilters() {
 
     filteredItems = allItems
 
+    return // remove this to filter properly again
+
     console.log(activeFilters)
 
-    if (Object.keys(activeFilters.fields).length < 1) {
+    if (activeFilters.field.length < 1 && activeFilters.string.length < 1) {
         filteredItems = allItems
     } else {
         // if we have any active filters, we need to apply them
-        filteredItems = []
-        let field, values
-        allItems.every( item => {
-            for (field in activeFilters.fields) {
-                values = activeFilters.fields[field]
-                // if the item doesn't have the field, we don't want it
-                if (!item[field]) continue;
+        filteredItems = allItems.filter( item => {
+
+            return activeFilters.field.every( f => {
+                if (!item[f.fieldName]) return false
+
                 // if the item has the field, but it's not an array, make it an array
-                let itemValues = item[field]
+                let itemValues = item[f.fieldName]
                 if (!(itemValues instanceof Array)) {
                     itemValues = [itemValues]
                 }
-                // if any of the item's values for the field are in the list of filter values, keep it
-                if (itemValues.some( val => values.includes(val) )) {
-                    filteredItems.push(item)
-                    break
+
+                // if an item's field value is in the list of filter values, keep it
+                if (itemValues.some( val => val === f.value )) {
+                    return true
                 }
-            }
-            // we're using .every() so that we can break by returning false
-            // use <= so we get one extra item (we won't show it, but if there's
-            // more than the max, we can tell the user about the cap)
-            return (filteredItems.length <= (config.maxResultCount || defaultMaxResultCount))
+                return false
+            })
+
         })
     }
 }
@@ -344,12 +366,12 @@ function applyFilters() {
 // go through the filtered list of results and
 // make page elements for them all
 function buildResultList() {
+
     let resultElement = document.querySelector('section.results')
     resultElement.innerHTML = ""
 
-    if (filteredItems.length < 1) {
-        reportStatus('no items to display')
-    }
+    // show the active filters at the top of the results
+    resultElement.append(buildCurrentFiltersDisplay())
 
     // do we have more results than our display cap?
     const displayCap = config.maxResultCount || defaultMaxResultCount
@@ -362,12 +384,17 @@ function buildResultList() {
         filteredItems = filteredItems.slice(0, displayCap)
     }
 
+    resultElement.append( makeNode('div', 'interface', capInfo) )
+
+    if (filteredItems.length < 1) {
+        reportStatus('no items to display')
+    }
+
     filteredItems.forEach( item => {
         resultElement.append(buildResult(item))
     })
 
     resultElement.append( makeNode('div', 'interface', capInfo) )
-    resultElement.prepend( makeNode('div', 'interface', capInfo) )
 }
 // --------------------------------------------
 // make page elements for a single result item 
