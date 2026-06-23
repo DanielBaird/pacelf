@@ -306,25 +306,6 @@ function buildCurrentFiltersDisplay() {
     })
     return currentFiltersElement
 
-    // where to put this
-
-    // first, field filters
-    // for (var field in activeFilters.fields) {
-    //     let activeFilterFieldElement = document.querySelector(`.activeFilter[field=${field}]`)
-    //     let values = activeFilters.fields[field]
-    //     filteredItems = filteredItems.filter( item => {
-    //         // if the item doesn't have the field, filter it out
-    //         if (!item[field]) return false
-    //         // if the item has the field, but it's not an array, make it an array
-    //         let itemValues = item[field]
-    //         if (!(itemValues instanceof Array)) {
-    //             itemValues = [itemValues]
-    //         }
-    //         // if any of the item's values for the field are in the list of filter values, keep it
-    //         return itemValues.some( val => values.includes(val) )
-    //     })
-    // }
-
 }
 // --------------------------------------------
 // filter the list of all items by whatever is
@@ -333,7 +314,7 @@ function applyFilters() {
 
     filteredItems = allItems
 
-    return // remove this to filter properly again
+    // return // remove this to filter properly again
 
     console.log(activeFilters)
 

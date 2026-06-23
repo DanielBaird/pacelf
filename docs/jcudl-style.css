@@ -1,7 +1,7 @@
 
 @scope (#jcudl-catalog) {
     /* box sizing inside the catalog */
-    :scope {
+    :scope {        
         --filter-bg: var(--jcudl-filter-bg, #111);
         --filter-item: var(--jcudl-filter-item, #222);
         --filter-active: var(--jcudl-filter-active, #333);
