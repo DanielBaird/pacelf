@@ -108,9 +108,10 @@ to run a **https** server at https://localhost. The first time you run this you 
 - filtering
     - [x] AND between all options
     - [x] show active filters
-    - [ ] active filters have an "x" button to remove that filter
+    - [x] active filters have an "x" button to remove that filter
     - [x] cap at 200 items (or config supplied cap)
     - [ ] string search
+        - [x] support string searches as a filter type
         - [ ] allow "hide from search" fields config
     - [ ] for each filter item, show result count for that additional filter
 - [ ] mobile layout

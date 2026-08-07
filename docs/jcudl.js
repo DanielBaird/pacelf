@@ -55,7 +55,9 @@ configLoader.then( (cfgResponse) => {
 // compact function for making a DOM element
 function makeNode(tag, className, ...content) {
     let node = document.createElement(tag)
-    node.className = className
+    if (className) {
+        node.className = className
+    }
     node.append(...content)
     return node
 }
@@ -133,6 +135,7 @@ function addFilter(value, field) {
     if (field) {
         activeFilters.field.push({fieldName: field, value: value})
     } else {
+        console.log('string search filter: ', value)
         activeFilters.string.push(value)
     }
 }
@@ -142,7 +145,13 @@ function addFilter(value, field) {
 // given, assume it's a string search filter
 function removeFilter(value, field) {
     if (field) {
+        // take the filter out of the list
         activeFilters.field = activeFilters.field.filter(f => !(f.fieldName === field && f.value === value))
+        // un-check the filter in the filter sidebar
+        const filterCheckbox = document.querySelector(`section.filters input[data-field="${field}"][data-value="${value}"]`)
+        if (filterCheckbox) {
+            filterCheckbox.checked = false
+        }
     } else {
         activeFilters.string = activeFilters.string.filter(f => f !== value)
     }
@@ -188,8 +197,13 @@ function buildFilters() {
 
     filtersElement.append( makeNode('div', 'filtersHeader', 'Filter by') )
 
+    filtersElement.append( buildTextFilter() )
+
     allFields.forEach( fieldId => {
-        buildFilter(fieldId)
+        let filter = buildFilter(fieldId)
+        if (filter) {
+            filtersElement.append(filter)
+        }
     })
 
     // dev mode: add links to our files, to make refreshes easier
@@ -208,6 +222,47 @@ function buildFilters() {
 
     let devModeLinks = makeNode('div', 'devlinks center faded smaller', jsLink, " ", configLink, " ", cssLink)
     filtersElement.append(devModeLinks)
+}
+
+
+// --------------------------------------------
+// add a string filter, then do the filtering, then display the results
+function addTextFilter(text) {
+    text = text.trim()
+
+    // don't add blank strings
+    if (text === '') return
+
+    // don't add duplicates
+    let dupe = activeFilters.string.some(s => s.toLowerCase() === text.toLowerCase())
+    if (!dupe) {
+        addFilter(text)
+        applyFilters()
+        buildResultList()
+    }
+}
+// --------------------------------------------
+// make page elements for the string matching filter
+function buildTextFilter() {
+    let textInput = makeNode('input', 'searchFilterText')
+    textInput.setAttribute('type', 'text')
+    textInput.setAttribute('placeholder', 'search...')
+    let textButton = makeNode('button', 'searchNow clickable', '\u{1F50E}\uFE0E')
+
+    // clicking the button will add the string to the filters
+    textButton.addEventListener('click', (event) => { 
+        addTextFilter(textInput.value)
+        textInput.value = ''
+    })
+    // hitting enter will also add the string to the filters
+    textInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            addTextFilter(textInput.value)
+            textInput.value = ''
+        }
+    })
+
+    return makeNode('div', 'filter text', textInput, textButton)
 }
 // --------------------------------------------
 // make page elements for a single filter
@@ -253,11 +308,13 @@ function buildFilter(fieldId) {
 
     }) 
     let filterHead = makeNode('div', 'filterHead', filterLabel, filterToggle)
-    let filterList = makeNode('div', 'filterList', ...(domain.map( domItem => buildCheckboxItem(domItem, fieldId))))
+
+    let checkboxList = domain.map( domItem => buildCheckboxItem(domItem, fieldId))
+    let filterList = makeNode('div', 'filterList', ...checkboxList)
 
     let filterElement = makeNode('div', 'filter closed', filterHead, filterList)
 
-    document.querySelector('section.filters').append(filterElement)
+    return filterElement
 }
 // --------------------------------------------
 // make a checkbox item for one possible
@@ -265,6 +322,8 @@ function buildFilter(fieldId) {
 function buildCheckboxItem(value, field) {
     let cb = makeNode('input')
     cb.setAttribute('type', 'checkbox')
+    cb.setAttribute('data-field', field)
+    cb.setAttribute('data-value', value)
 
     cb.addEventListener('change', (event) => {
         if (event.target.checked) {
@@ -291,6 +350,19 @@ function buildCurrentFiltersDisplay() {
         currentFiltersElement.append( makeNode('span', 'filtersLabel', 'Current filters:') )
     }
 
+    activeFilters.string.forEach( filterString => {
+        let filterLabel = 'text'
+        let filterPill = makeNode('span', 'filterPill', `\u275d\u2009${filterString}\u2009\u275e`)
+        let removeButton = makeNode('button', 'removeFilter clickable', '\u00d7') // \u00d7 is a multiplication sign
+        removeButton.addEventListener('click', (event) => {
+            removeFilter(filterString)
+            applyFilters()
+            buildResultList()
+        })
+        filterPill.append(removeButton)
+        currentFiltersElement.append(filterPill)
+    })
+
     activeFilters.field.forEach( f => {
         let filterLabel = getFieldLabel(f.fieldName)
         let filterValue = f.value
@@ -314,8 +386,6 @@ function applyFilters() {
 
     filteredItems = allItems
 
-    // return // remove this to filter properly again
-
     console.log(activeFilters)
 
     if (activeFilters.field.length < 1 && activeFilters.string.length < 1) {
@@ -324,7 +394,8 @@ function applyFilters() {
         // if we have any active filters, we need to apply them
         filteredItems = allItems.filter( item => {
 
-            return activeFilters.field.every( f => {
+            let filterResult = activeFilters.field.every( f => {
+                // if the item doesn't have the field, it CAN'T match, so we're out
                 if (!item[f.fieldName]) return false
 
                 // if the item has the field, but it's not an array, make it an array
@@ -340,6 +411,28 @@ function applyFilters() {
                 return false
             })
 
+            let stringResult = activeFilters.string.every( s => {
+                s = s.toLowerCase()
+                for (field in item) {
+                    // if the field isn't searchable, it's fine
+                    // TODO this config option for no-string-search fields
+                    if ([].includes(field)) continue
+
+                    // if the item has the field, but it's not an array, make it an array
+                    let itemValues = item[field]
+                    if (!(itemValues instanceof Array)) {
+                        itemValues = [itemValues]
+                    }
+
+                    // if the string search is in an item's field value, keep it
+                    if (itemValues.some( val => val.toLowerCase().includes(s) )) {
+                        return true
+                    }
+                }
+                return false
+            })
+
+            return filterResult && stringResult
         })
     }
 }

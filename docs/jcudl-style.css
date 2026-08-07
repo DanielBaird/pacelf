@@ -34,7 +34,7 @@
     }
     /* -- utility styles ------------------------------- */
     * { box-sizing: inherit; }
-    p, dl, dt {
+    p, dl, dt, button {
         margin: 0;
         padding: 0;
     }
@@ -177,7 +177,38 @@
     .filter .filterToggle:before { content: '▼'; }
     .filter.closed .filterToggle { transform: rotate(0); }
 
-    .filterList { 
+    .filter.text {
+        position: relative;
+        padding: 1em 0.5em;
+        text-align: center;
+    }
+    .searchFilterText {
+        font-family: inherit;
+        font-size: inherit;
+        width: calc(100% - 1.5em);
+        width: 100%;
+        border: none;
+        padding: 0 2.5em 0 0.75em;
+        height: 2em;
+        line-height: 2em;
+        border-radius: 2em;
+        background-color: var(--data-item);
+        color: var(--data-text);
+    }
+    .filter.text .searchNow {
+        font-family: inherit;
+        font-size: inherit;
+        position: absolute;
+        right: 0.65em;
+        top: 1.15em;
+        height: 1.75em;
+        width: 1.75em;
+        border-radius: 1em;
+        border: none;
+        background-color: var(--interface-bg);
+        color: var(--interface-text);
+    }
+    .filterList {
         padding: 0.5em 0 0.5em 1em;
         transition: 0.33s;
         overflow: hidden;
